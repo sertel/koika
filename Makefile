@@ -114,7 +114,7 @@ $(foreach fname,$(filter %.lv, $(EXAMPLES) $(TESTS)),\
 $(foreach fname,$(filter %.v, $(EXAMPLES) $(TESTS)),\
 	$(eval $(call cuttlec_v_template,$(fname))))
 
-examples: $(call target_directories,$(EXAMPLES));
+examples: coq.kernel $(call target_directories,$(EXAMPLES));
 clean-examples:
 	find examples/ -type d \( -name _objects -or -name _build \) -exec rm -rf {} +
 	rm -rf ${BUILD_DIR}/examples
@@ -123,6 +123,13 @@ tests: $(call target_directories,$(TESTS));
 clean-tests:
 	find tests/ -type d  \( -name _objects -or -name _build \) -exec rm -rf {} +
 	rm -rf ${BUILD_DIR}/tests
+
+# HACK: Part One of a two-part hack. Dune does not provide the OCaml libs of Coq
+# to its targets. Thus, link the libs to a well-known location and add specific
+# "-nI" include flags in e.g. examples/rv/dune.
+coq.kernel:
+	@rm -f coq.kernel
+	@ln -s $$(find -L $$(coqc --config | sed -n -E -e '/^COQLIB=/s;^COQLIB=(.*)/coq;\1/ocaml;p') -type d -name kernel) $@
 
 .PHONY: configure examples clean-examples tests clean-tests
 
@@ -144,7 +151,7 @@ all: coq ocaml examples tests readme;
 
 clean: clean-tests clean-examples
 	dune clean
-	rm -f koika-*.tar.gz
+	rm -f koika-*.tar.gz coq.kernel
 
 .PHONY: readme package dune-all all clean
 

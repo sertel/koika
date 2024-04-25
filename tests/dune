@@ -1,7 +1,8 @@
 (coq.theory
  (name tests)
  (modules :standard)
- (theories Koika))
+ (mode vo)
+ (theories Ltac2 Koika))
 
 (env
  (dev (flags (:standard -w -39))))
@@ -19,7 +20,7 @@ Extraction \"cross_cycle.ml\" cross_cycle.prog."))
  (coq.extraction
   (prelude cross_cycle_extr)
   (extracted_modules cross_cycle)
-  (theories Koika tests)
+  (theories Ltac2 Koika tests)
   (flags "-w" "-overriding-logical-loadpath")))
 
 
@@ -31,7 +32,7 @@ Extraction \"double_write.ml\" double_write.prog."))
  (coq.extraction
   (prelude double_write_extr)
   (extracted_modules double_write)
-  (theories Koika tests)
+  (theories Ltac2 Koika tests)
   (flags "-w" "-overriding-logical-loadpath")))
 
 
@@ -43,7 +44,7 @@ Extraction \"errors.ml\" errors.prog."))
  (coq.extraction
   (prelude errors_extr)
   (extracted_modules errors)
-  (theories Koika tests)
+  (theories Ltac2 Koika tests)
   (flags "-w" "-overriding-logical-loadpath")))
 
 
@@ -55,7 +56,7 @@ Extraction \"extcall.ml\" extcall.prog."))
  (coq.extraction
   (prelude extcall_extr)
   (extracted_modules extcall)
-  (theories Koika tests)
+  (theories Ltac2 Koika tests)
   (flags "-w" "-overriding-logical-loadpath")))
 
 
@@ -67,7 +68,7 @@ Extraction \"internal_functions.ml\" internal_functions.prog."))
  (coq.extraction
   (prelude internal_functions_extr)
   (extracted_modules internal_functions)
-  (theories Koika tests)
+  (theories Ltac2 Koika tests)
   (flags "-w" "-overriding-logical-loadpath")))
 
 
@@ -79,7 +80,7 @@ Extraction \"large_writeset.ml\" large_writeset.prog."))
  (coq.extraction
   (prelude large_writeset_extr)
   (extracted_modules large_writeset)
-  (theories Koika tests)
+  (theories Ltac2 Koika tests)
   (flags "-w" "-overriding-logical-loadpath")))
 
 
@@ -91,7 +92,7 @@ Extraction \"muxelim.ml\" muxelim.prog."))
  (coq.extraction
   (prelude muxelim_extr)
   (extracted_modules muxelim)
-  (theories Koika tests)
+  (theories Ltac2 Koika tests)
   (flags "-w" "-overriding-logical-loadpath")))
 
 
@@ -103,7 +104,7 @@ Extraction \"read1_write1_check.ml\" read1_write1_check.prog."))
  (coq.extraction
   (prelude read1_write1_check_extr)
   (extracted_modules read1_write1_check)
-  (theories Koika tests)
+  (theories Ltac2 Koika tests)
   (flags "-w" "-overriding-logical-loadpath")))
 
 
@@ -115,7 +116,7 @@ Extraction \"register_file_bypassing.ml\" register_file_bypassing.prog."))
  (coq.extraction
   (prelude register_file_bypassing_extr)
   (extracted_modules register_file_bypassing)
-  (theories Koika tests)
+  (theories Ltac2 Koika tests)
   (flags "-w" "-overriding-logical-loadpath")))
 
 
@@ -127,7 +128,7 @@ Extraction \"shifts.ml\" shifts.prog."))
  (coq.extraction
   (prelude shifts_extr)
   (extracted_modules shifts)
-  (theories Koika tests)
+  (theories Ltac2 Koika tests)
   (flags "-w" "-overriding-logical-loadpath")))
 
 
@@ -139,7 +140,7 @@ Extraction \"struct_init.ml\" struct_init.prog."))
  (coq.extraction
   (prelude struct_init_extr)
   (extracted_modules struct_init)
-  (theories Koika tests)
+  (theories Ltac2 Koika tests)
   (flags "-w" "-overriding-logical-loadpath")))
 
 
@@ -151,7 +152,7 @@ Extraction \"switches.ml\" switches.prog."))
  (coq.extraction
   (prelude switches_extr)
   (extracted_modules switches)
-  (theories Koika tests)
+  (theories Ltac2 Koika tests)
   (flags "-w" "-overriding-logical-loadpath")))
 
 
@@ -163,7 +164,7 @@ Extraction \"trivial_state_machine.ml\" trivial_state_machine.prog."))
  (coq.extraction
   (prelude trivial_state_machine_extr)
   (extracted_modules trivial_state_machine)
-  (theories Koika tests)
+  (theories Ltac2 Koika tests)
   (flags "-w" "-overriding-logical-loadpath")))
 
 
@@ -175,5 +176,5 @@ Extraction \"unpack.ml\" unpack.prog."))
  (coq.extraction
   (prelude unpack_extr)
   (extracted_modules unpack)
-  (theories Koika tests)
+  (theories Ltac2 Koika tests)
   (flags "-w" "-overriding-logical-loadpath")))

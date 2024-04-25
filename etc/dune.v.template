@@ -6,5 +6,5 @@ Extraction \"{module_name}.ml\" {module_name}.prog."))
  (coq.extraction
   (prelude {module_name}_extr)
   (extracted_modules {module_name})
-  (theories Koika {theory})
+  (theories Ltac2 Koika {theory})
   (flags "-w" "-overriding-logical-loadpath")))

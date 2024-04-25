@@ -1,7 +1,9 @@
 (coq.theory
  (name rv)
  (modules :standard)
- (theories Koika))
+ (mode vo)
+ (theories Ltac2 Koika)
+ (flags "-w" "-overriding-logical-loadpath" -nI ../../coq.kernel))
 
 
 ;; --- DO NOT EDIT BELOW THIS LINE (use ‘make configure’) ---
@@ -16,7 +18,7 @@ Extraction \"rv32e.ml\" rv32e.prog."))
  (coq.extraction
   (prelude rv32e_extr)
   (extracted_modules rv32e)
-  (theories Koika rv)
+  (theories Ltac2 Koika rv)
   (flags "-w" "-overriding-logical-loadpath")))
 
 
@@ -28,5 +30,5 @@ Extraction \"rv32i.ml\" rv32i.prog."))
  (coq.extraction
   (prelude rv32i_extr)
   (extracted_modules rv32i)
-  (theories Koika rv)
+  (theories Ltac2 Koika rv)
   (flags "-w" "-overriding-logical-loadpath")))

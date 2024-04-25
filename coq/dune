@@ -2,5 +2,5 @@
  (package koika)
  (name Koika)
  (modules :standard)
- (theories Ltac2)
- (mode vo))
+ (mode vo)
+ (theories Ltac2))
