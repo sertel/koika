@@ -11,24 +11,20 @@
     let
       koikaPkg = { lib, mkCoqDerivation, coq, python3, boost, gtkwave }: mkCoqDerivation rec {
         pname = "koika";
-        version = "0.0.1";
+        defaultVersion = "0.0.1";
 
         opam-name = "koika";
         useDune = true;
 
-        src = lib.cleanSourceWith {
-          src = lib.cleanSource ./.;
-          filter = let inherit (lib) hasSuffix; in path: type:
-            (! hasSuffix ".gitignore" path)
-            && (! hasSuffix "flake.nix" path)
-            && (! hasSuffix "flake.lock" path)
-            && (! hasSuffix "_build" path);
-        };
-
-        # NOTE: Add more Coq releases here and at the callsite of injectKoika
-        release."8.14" = {
-          version = "0.0.1";
-          inherit src;
+        release."0.0.1" = {
+          src = lib.const (lib.cleanSourceWith {
+            src = lib.cleanSource ./.;
+            filter = let inherit (lib) hasSuffix; in path: type:
+              (! hasSuffix ".gitignore" path)
+              && (! hasSuffix "flake.nix" path)
+              && (! hasSuffix "flake.lock" path)
+              && (! hasSuffix "_build" path);
+          });
         };
 
         enableParallelBuilding = true;
