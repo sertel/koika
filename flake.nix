@@ -9,7 +9,7 @@
   outputs = { self, flake-utils, nixpkgs, ... }:
     with flake-utils.lib;
     let
-      koikaPkg = { lib, mkCoqDerivation, coq, python3, boost, gtkwave }: mkCoqDerivation rec {
+      koikaPkg = { lib, mkCoqDerivation, coq, boost, }: mkCoqDerivation rec {
         pname = "koika";
         defaultVersion = "0.0.1";
 
@@ -47,13 +47,12 @@
           mv "$out/lib/koika" "$OCAMLFIND_DESTDIR"
         '';
 
-        nativeCheckInputs = [ python3 gtkwave ];
         # NOTE: Also build the examples, because they use additional parts of
         # the Dune toolchain.
         checkPhase = ''
           runHook preCheck
-          patchShebangs etc/configure
-          make VERBOSE=1 tests examples
+          ./coq.kernel.hack.sh
+          dune build @runtest
           runHook postCheck
         '';
       };
