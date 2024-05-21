@@ -19,8 +19,7 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    - uses: actions/checkout@v4
-    - run: /usr/bin/git config --global --add safe.directory /github/workspace
+    - uses: actions/checkout@f095bcc56b7c2baf48f3ac70d6d6782f4f553222
     - uses: docker://ghcr.io/fluidattacks/makes/amd64:24.02
       with:
         args: m . /build
