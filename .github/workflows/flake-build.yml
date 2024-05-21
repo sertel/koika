@@ -22,5 +22,5 @@ jobs:
     - uses: actions/checkout@v4
     - uses: docker://ghcr.io/fluidattacks/makes/amd64:24.02
       with:
-        - github_access_token: ${{ secrets.GITHUB_TOKEN }}
-        - args: m . /build
+        github_access_token: ${{ secrets.GITHUB_TOKEN }}
+        args: m . /build
