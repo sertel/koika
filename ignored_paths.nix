@@ -1,0 +1,9 @@
+[
+  "default.nix"
+  "flake.nix"
+  "makes.lock.nix"
+  "makes.nix"
+  "overlay.nix"
+  "makes"
+  ".gitignore"
+]
