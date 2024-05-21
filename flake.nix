@@ -9,7 +9,7 @@
   outputs = { self, flake-utils, nixpkgs, ... }:
     with flake-utils.lib;
     let
-      koikaPkg = { lib, mkCoqDerivation, coq, boost, }: mkCoqDerivation rec {
+      koikaPkg = { lib, mkCoqDerivation, coq, boost, python3, sphinx }: mkCoqDerivation rec {
         pname = "koika";
         defaultVersion = "0.0.1";
 
@@ -29,6 +29,15 @@
 
         enableParallelBuilding = true;
 
+        nativeBuildInputs = [
+          python3
+          sphinx
+        ];
+
+        buildInputs = [
+          boost
+        ];
+
         propagatedBuildInputs = with coq.ocamlPackages; [
           findlib
           base
@@ -38,9 +47,13 @@
           parsexp
           hashcons
           zarith
-        ] ++ [
-          boost
         ];
+
+        preInstall = ''
+          dune build README.html
+          mkdir -p $out/share/doc/koika
+          cp README.html $out/share/doc/koika/
+        '';
 
         postInstall = ''
           mkdir -p "$OCAMLFIND_DESTDIR"
@@ -54,6 +67,10 @@
           ./coq.kernel.hack.sh
           dune build @runtest
           runHook postCheck
+        '';
+
+        shellHook = ''
+          [ -x coq.kernel.hack.sh ] && ./coq.kernel.hack.sh
         '';
       };
 

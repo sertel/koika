@@ -16,11 +16,9 @@ Our largest example at the moment is a simple RISCV (RV32I) `4-stage pipelined c
 
 This README provides practical information to get started with Kôika.  For details about Kôika's semantics, its compilation algorithm, and the work it draws inspiration from, please read our PLDI 2020 paper: `The Essence of Bluespec, A Core Language for Rule-Based Hardware Design <https://dl.acm.org/doi/10.1145/3385412.3385965>`_.
 
-.. raw:: html
-
-   <a href="https://github.com/mit-plv/koika/">
-     <img src="https://raw.githubusercontent.com/mit-plv/koika/master/etc/logo/cover.jpg" align="center" />
-   </a>
+.. image:: etc/logo/cover.jpg
+           :alt: Kôika logo showing a cuttlefish
+           :target: https://github.com/mit-plv/koika/
 
 Getting started
 ===============
@@ -28,41 +26,42 @@ Getting started
 Installing dependencies and building from source
 ------------------------------------------------
 
-* OCaml 4.07 through 4.09, `opam <https://opam.ocaml.org/doc/Install.html>`_ 2.0 or later, GNU make.
+* OCaml 4.12 `opam <https://opam.ocaml.org/doc/Install.html>`_ 2.0 or later, GNU make.
 
-* Coq 8.11 through 8.13::
+* Coq 8.14::
 
-    opam install coq=8.12.2
+    opam install coq=8.14
 
-* Dune 2.5 or later::
+* Dune 3.11 or later::
 
     opam upgrade dune
 
 * Some OCaml packages::
 
-    opam install base core stdio parsexp hashcons zarith
+    opam install base core core_unix stdio parsexp hashcons zarith
 
 * To run the tests of our RISCV core, a `RISCV compilation toolchain <https://github.com/xpack-dev-tools/riscv-none-embed-gcc-xpack/releases/>`_.
 
 * To run C++ simulations: a recent C++ compiler (clang or gcc), ``libboost-dev``, and optionally ``clang-format``.
 
-You can compile the full distribution, including examples, tests, and proofs by running ``make`` in the top-level directory of this repo.  Generated files are placed in ``_build``, ``examples/_objects/``,  ``tests/_objects/``, and  ``examples/rv/_objects/``.
+* To compile this README, you need ``sphinx`` and its tool ``rst2html5``.
 
-Each directory in ``_objects`` contains `a Makefile <makefile_>`_ to ease further experimentation (including RTL simulation, profiling, trace generation, etc.).
+You can compile the full distribution, including examples, tests, and proofs by running ``dune build @runtest`` in the top-level directory of this repo.  Generated files are placed in ``_build``.
+
+.. Each directory in ``_objects`` contains `a Makefile <makefile_>`_ to ease further experimentation (including RTL simulation, profiling, trace generation, etc.).
 
 .. opam show -f name,version coq dune base core stdio parsexp hashcons zarith | sed 's/name *//' | tr '\n' ' ' | sed 's/ *version */=/g' | xclip
 
 For reproducibility, here is one set of versions known to work:
 
-- OCaml 4.09 with ``opam install base=v0.13.1 coq=8.11.1 core=v0.13.0 dune=2.5.1 hashcons=1.3 parsexp=v0.13.0 stdio=v0.13.0 zarith=1.9.1``
+- OCaml 4.12.1 with ``opam install base=v0.13.1 coq=8.14 core=v0.15.1 dune=3.11.1 hashcons=1.4 parsexp=v0.15.0 stdio=v0.15.0 zarith=1.13``
+
+- Additionally, we provide a ``flake.nix`` file that allows you to download, install and use a working set of programs by just calling ``nix develop`` (provided, that you have Nix installed. See also the `Nix Package Manager <https://nixos.org/download>`_).
 
 Browsing examples
 -----------------
 
-The ``examples/`` directory of this repo demonstrates many of |koika|'s features.
-The examples can be compiled using ``make examples``, and browsed in either
-CoqIDE or Proof General.  There is basic Emacs support for ``.lv`` files (the “Lispy
-Verilog” alternative frontend for |koika|) in ``etc/lv-mode.el``.
+The ``examples/`` directory of this repo demonstrates many of |koika|'s features.  The examples can be compiled using ``dune build @examples/runtest``, and browsed in either CoqIDE or Proof General.  There is basic Emacs support for ``.lv`` files (the “Lispy Verilog” alternative frontend for |koika|) in ``etc/lv-mode.el``.
 
 See `browsing the sources <repo-map_>`_ below for information about the repository's organization.
 
@@ -78,7 +77,10 @@ Our compiler (``cuttlec``) supports multiple targets:
 - ``makefile`` (an auto-generated Makefile including convenient targets to debug, profile, trace, or visualize the outputs of your design)
 - ``dot`` (a basic representation of the RTL generated from your design)
 
-For quick experimentation, you can just drop your files in ``examples/`` or ``tests/`` and run ``make examples/_objects/<your-file.v>/``.
+For quick experimentation, you can just drop your files in ``examples/`` and run:
+
+- ``dune build @examples/genrules`` (only needs to be done once for every new file) followed by
+- ``dune build @examples/<your-file.v>.d/runtest``.
 
 Programs written in the Coq EDSL
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -139,6 +141,7 @@ The semantics of |koika| guarantee that each rule executes atomically, and that 
 As an example, consider a simple two-stage pipeline with two single-element input FIFOs and one single-element output FIFO:
 
 .. image:: etc/readme/pipeline.svg
+           :alt: A diagram with two input FIFOs on the left feeding into a register stage that is read by a "process". The result is written to the next register stage that feeds the output FIFO.
 
 We implement these FIFOs using three single-bit registers (``…_empty``) indicating whether each FIFO is empty, and three data registers (``…_data``) holding the contents of these FIFOs.  We have three rules: two to dequeue from the input FIFOs into a middle FIFO (``deq0`` and ``deq1``), and one to dequeue from the middle FIFO and write a result (the input plus 412) into an output FIFO (``process``).  The code looks like this (``guard(condition)`` is short for ``if !condition then fail``):
 

@@ -5,3 +5,14 @@
   (flags (:standard -warn-error -A \ -short-paths))))
 
 (executable (name ruleGen))
+
+;; Run etc/readme/update.py to update the source file list in README.rst
+(rule
+ (mode promote)
+ (target README.html)
+ (deps
+  (:src README.rst)
+  etc/readme/pipeline.svg
+  etc/logo/cover.jpg)
+ (action
+  (run rst2html5 --stylesheet=%{dep:etc/readme/docutils_basic.css},%{dep:etc/readme/extra.css} --image-loading=embed %{src} %{target})))
