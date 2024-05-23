@@ -25,8 +25,8 @@ Notation compile_scheduler :=
 Notation lower_r := Lowering.lower_r.
 
 Class DummyPos pos_t := { dummy_pos: pos_t }.
-Instance DummyPos_path : DummyPos path := {| dummy_pos := PThis |}.
-Instance DummyPos_unit : DummyPos unit := {| dummy_pos := tt |}.
+#[global] Instance DummyPos_path : DummyPos path := {| dummy_pos := PThis |}.
+#[global] Instance DummyPos_unit : DummyPos unit := {| dummy_pos := tt |}.
 
 Declare Scope log_entries.
 Notation "'read0'" := (LE LogRead P0 tt) (only printing) : log_entries.

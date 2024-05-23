@@ -6,7 +6,7 @@ final: prev: let
     });
 in
   (prev.lib.mapAttrs injectKoika {
-    inherit (final) coqPackages_8_14;
+    inherit (final) coqPackages_8_14 coqPackages_8_18;
   })
   // {
     coqPackages_koika = prev.coqPackages_8_14.overrideScope (self: super: {

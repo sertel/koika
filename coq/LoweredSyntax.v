@@ -33,17 +33,17 @@ Section Syntax.
           (value: action sig (R idx)) : action sig 0
   | Unop {sig}
           (fn: fbits1)
-          (arg1: action sig (CSigma1 fn).(arg1Sig))
-    : action sig (CSigma1 fn).(retSig)
+          (arg1: action sig (arg1Sig (CSigma1 fn)))
+    : action sig (retSig (CSigma1 fn))
   | Binop {sig}
           (fn: fbits2)
-          (arg1: action sig (CSigma2 fn).(arg1Sig))
-          (arg2: action sig (CSigma2 fn).(arg2Sig))
-    : action sig (CSigma2 fn).(retSig)
+          (arg1: action sig (arg1Sig (CSigma2 fn)))
+          (arg2: action sig (arg2Sig (CSigma2 fn)))
+    : action sig (retSig (CSigma2 fn))
   | ExternalCall {sig}
                  (fn: ext_fn_t)
-                 (arg: action sig (Sigma fn).(arg1Sig))
-    : action sig (Sigma fn).(retSig)
+                 (arg: action sig (arg1Sig (Sigma fn)))
+    : action sig (retSig (Sigma fn))
   | APos {sig sz} (pos: pos_t) (a: action sig sz)
     : action sig sz.
 

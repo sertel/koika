@@ -71,9 +71,9 @@ Section TypedSyntaxProperties.
                l = action_log).
 
     { clear dependent a; clear t t2 Heqo.
-      revert dependent Gamma.
-      revert dependent sched_log.
-      revert dependent action_log.
+      generalize dependent Gamma.
+      generalize dependent sched_log.
+      generalize dependent action_log.
       generalize dependent (rev argspec); clear argspec.
       fix IHargs 2; destruct args; cbn; intros;
         repeat dec_step. }

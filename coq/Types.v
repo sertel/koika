@@ -266,8 +266,8 @@ Definition Sig_of_CSig {n} (sig: CSig n) : Sig n :=
   {| argSigs := vect_map bits_t sig.(argSigs);
      retSig := bits_t sig.(retSig) |}.
 
-Notation arg1Sig fsig := (vect_hd fsig.(argSigs)).
-Notation arg2Sig fsig := (vect_hd (vect_tl fsig.(argSigs))).
+Notation arg1Sig fsig := (vect_hd (argSigs fsig)).
+Notation arg2Sig fsig := (vect_hd (vect_tl (argSigs fsig))).
 
 Module SigNotations.
   Notation "{$  a1 ~> ret  $}" :=

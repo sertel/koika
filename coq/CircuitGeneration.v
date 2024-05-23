@@ -104,14 +104,14 @@ Section CircuitCompilation.
       forall n : nat, n * 1 = n.
     Proof. induction n; simpl; congruence. Defined.
 
-    Definition compile_unop (fn: fbits1) (a: circuit (CSigma1 fn).(arg1Sig)):
-      circuit (CSigma1 fn).(retSig) :=
-      let cArg1 fn := circuit (CSigma1 fn).(arg1Sig) in
-      let cRet fn := circuit (CSigma1 fn).(retSig) in
+    Definition compile_unop (fn: fbits1) (a: circuit (arg1Sig (CSigma1 fn))):
+      circuit (retSig (CSigma1 fn)) :=
+      let cArg1 fn := circuit (arg1Sig (CSigma1 fn)) in
+      let cRet fn := circuit (retSig (CSigma1 fn)) in
       let c :=
-        match fn return circuit (CSigma1 fn).(arg1Sig) ->
-                        circuit (CSigma1 fn).(retSig) ->
-                        circuit (CSigma1 fn).(retSig) with
+        match fn return circuit (arg1Sig (CSigma1 fn)) ->
+                        circuit (retSig (CSigma1 fn)) ->
+                        circuit (retSig (CSigma1 fn)) with
         | Not _ => fun a c => c
         | Repeat _ _ => fun a c => c
         | SExt sz width => fun a c =>
@@ -132,10 +132,8 @@ Section CircuitCompilation.
         end a (CUnop fn a) in
     COpt c.
 
-    Lemma lt_plus_minus_r :
-      forall n m : nat, n < m -> n + (m - n) = m.
-    Proof.
-      auto using le_plus_minus_r, Nat.lt_le_incl.
+    Definition le_plus_minus_r  (n m : nat) : n <= m -> n + (m - n) = m.
+      rewrite Nat.add_comm. apply Nat.sub_add.
     Defined.
 
     Definition slice_subst_macro {sz} offset {width}
@@ -156,17 +154,17 @@ Section CircuitCompilation.
       end.
 
     Definition compile_binop (fn: fbits2)
-               (c1: circuit (CSigma2 fn).(arg1Sig))
-               (c2: circuit (CSigma2 fn).(arg2Sig)):
-      circuit (CSigma2 fn).(retSig) :=
-      let cArg1 fn := circuit (CSigma2 fn).(arg1Sig) in
-      let cArg2 fn := circuit (CSigma2 fn).(arg2Sig) in
-      let cRet fn := circuit (CSigma2 fn).(retSig) in
+               (c1: circuit (arg1Sig (CSigma2 fn)))
+               (c2: circuit (arg2Sig (CSigma2 fn))):
+      circuit (retSig (CSigma2 fn)) :=
+      let cArg1 fn := circuit (arg1Sig (CSigma2 fn)) in
+      let cArg2 fn := circuit (arg2Sig (CSigma2 fn)) in
+      let cRet fn := circuit (retSig (CSigma2 fn)) in
       let c :=
-        match fn return circuit (CSigma2 fn).(arg1Sig) ->
-                        circuit (CSigma2 fn).(arg2Sig) ->
-                        circuit (CSigma2 fn).(retSig) ->
-                        circuit (CSigma2 fn).(retSig) with
+        match fn return circuit (arg1Sig (CSigma2 fn)) ->
+                        circuit (arg2Sig (CSigma2 fn)) ->
+                        circuit (retSig (CSigma2 fn)) ->
+                        circuit (retSig (CSigma2 fn)) with
         | SliceSubst sz offset width => fun c1 c2 c =>
           slice_subst_macro offset c1 c2
         | _ => fun c1 c2 c => c

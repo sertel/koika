@@ -506,9 +506,9 @@ Defined.
 
 Definition ContextEnv {K} {FT: FiniteType K}: Env K.
   unshelve refine {| env_t V := context V finite_elements;
-                     getenv {V} ctx k := cassoc (finite_member k) ctx;
-                     putenv {V} ctx k v := creplace (finite_member k) v ctx;
-                     create {V} fn := ccreate finite_elements (fun k _ => fn k) |}.
+                     getenv V ctx k := cassoc (finite_member k) ctx;
+                     putenv V ctx k v := creplace (finite_member k) v ctx;
+                     create V fn := ccreate finite_elements (fun k _ => fn k) |}.
   - intros; rewrite <- ccreate_cassoc; apply ccreate_funext.
     intros; f_equal; apply member_NoDup; try typeclasses eauto; apply finite_nodup.
   - intros; apply ccreate_funext; eauto.

@@ -352,7 +352,7 @@ Section CircuitOptimizer.
       | CNot c =>
         match asconst c with
         | Some cst => fun _ => CConst (Bits.neg cst)
-        | c => fun c0 => c0
+        | _c => fun c0 => c0
         end
       | CAnd c1 c2 =>
         if c1 ~~ b0 || c2 ~~ b0 then fun c0 => CConst b0
@@ -510,7 +510,7 @@ Section CircuitOptimizer.
         end
       | CBinop (Concat sz1 sz2) c1 c2 =>
         match eq_dec sz1 0, eq_dec sz2 0 with
-        | left pr, _ => fun _ => rew <- [fun sz => circuit (sz2 + sz)] pr in rew <- plus_0_r sz2 in c2
+        | left pr, _ => fun _ => rew <- [fun sz => circuit (sz2 + sz)] pr in rew <- Nat.add_0_r sz2 in c2
         | _, left pr => fun _ => rew <- [fun sz => circuit (sz + sz1)] pr in (c1: circuit (0 + sz1))
         | _, _ => fun c0 => c0
         end

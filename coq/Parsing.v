@@ -59,11 +59,11 @@ Notation "arg1 '|' arg2" := (app arg1 arg2) (in custom koika_branches at level 1
 Notation "'{{' e '}}'" := (e) (e custom koika at level 200, format "'{{' '[v' '/' e '/' ']' '}}'").
 
 Notation "'fail'" :=
-  (UFail (bits_t 0)) (in custom koika, format "'fail'").
+  (UFail (bits_t 0)) (in custom koika at level 1, format "'fail'").
 Notation "'fail' '(' t ')'" :=
-  (UFail (bits_t t)) (in custom koika, t constr at level 0 ,format "'fail' '(' t ')'").
+  (UFail (bits_t t)) (in custom koika at level 1, t constr at level 0, format "'fail' '(' t ')'").
 Notation "'fail' '@(' t ')'" :=
-  (UFail t) (in custom koika, t constr at level 0 ,format "'fail' '@(' t ')'").
+  (UFail t)          (in custom koika at level 1, t constr at level 0 ,format "'fail' '@(' t ')'").
 Notation "'pass'" := (USugar (UConstBits Ob)) (in custom koika).
 Notation "'magic'" := (USugar UErrorInAst) (in custom koika).
 
@@ -74,25 +74,25 @@ Notation "'(' a ')'" := (a) (in custom koika at level 1, a custom koika, format 
 
 Notation "instance  '.(' method ')' args" :=
   (USugar (UCallModule instance _ method args))
-    (in custom koika at level 1, instance constr at level 0, method constr, args custom koika_args at level 99).
+    (in custom koika at level 0, instance constr at level 0, method constr, args custom koika_args at level 99).
 Notation "'{' method '}' args" :=
   (USugar (UCallModule id _ method args))
     (in custom koika at level 1, method constr at level 200 , args custom koika_args at level 99, only parsing).
 Notation "method args" :=
   (USugar (UCallModule id _ method args))
-    (in custom koika at level 1, method constr at level 0 , args custom koika_args at level 99, only parsing).
+    (in custom koika at level 0, method constr at level 0 , args custom koika_args at level 99, only parsing).
 
-Notation "a" := (UVar (ident_to_string a)) (in custom koika at level 1, a constr at level 0, only parsing).
-Notation "a" := (UVar a) (in custom koika at level 1, a constr at level 0, only printing).
+Notation "a" := (UVar (ident_to_string a)) (in custom koika at level 0, a constr at level 0, only parsing).
+Notation "a" := (UVar a) (in custom koika at level 0, a constr at level 0, only printing).
 
-Notation "'read0' '(' reg ')' " := (URead P0 reg) (in custom koika, reg constr, format "'read0' '(' reg ')'").
-Notation "'read1' '(' reg ')' " := (URead P1 reg) (in custom koika, reg constr, format "'read1' '(' reg ')'").
+Notation "'read0' '(' reg ')' " := (URead P0 reg) (in custom koika at level 1, reg constr, format "'read0' '(' reg ')'").
+Notation "'read1' '(' reg ')' " := (URead P1 reg) (in custom koika at level 1, reg constr, format "'read1' '(' reg ')'").
 Notation "'write0' '(' reg ',' value ')'" :=
   (UWrite P0 reg value)
-    (in custom koika, reg constr at level 13, format "'write0' '(' reg ',' value ')'").
+    (in custom koika at level 1, reg constr at level 13, format "'write0' '(' reg ',' value ')'").
 Notation "'write1' '(' reg ',' value ')'" :=
   (UWrite P1 reg value)
-    (in custom koika, reg constr at level 13, format "'write1' '(' reg ',' value ')'").
+    (in custom koika at level 1, reg constr at level 13, format "'write1' '(' reg ',' value ')'").
 
 Notation "'if' a 'then' t 'else' f" := (UIf a t f) (in custom koika at level 86, right associativity, format "'[v' 'if'  a '/' 'then'  t '/' 'else'  f ']'").
 Notation "'guard' '(' a ')' " := (UIf (UUnop (UBits1 UNot) a) (UFail (bits_t 0)) (USugar (UConstBits Ob))) (in custom koika at level 86, right associativity, format "'guard' '(' a ')'").
@@ -198,9 +198,9 @@ Declare Custom Entry koika_structs_init.
 Notation "f ':=' expr" := (cons (f,expr) nil) (in custom koika_structs_init at level 20, f custom koika_var at level 0, expr custom koika at level 88).
 Notation "a ';' b" := (app a b) (in custom koika_structs_init at level 91, a custom koika_structs_init).
 Notation "'struct' structtype '{' fields '}'" :=
-  (USugar (UStructInit structtype fields)) (in custom koika, structtype constr at level 0, fields custom koika_structs_init at level 92).
+  (USugar (UStructInit structtype fields)) (in custom koika at level 1, structtype constr at level 0, fields custom koika_structs_init at level 92).
 Notation "'struct' structtype '{' '}'" :=
-  (USugar (UStructInit structtype [])) (in custom koika, structtype constr at level 0).
+  (USugar (UStructInit structtype [])) (in custom koika at level 1, structtype constr at level 0).
 
   Definition mem_req :=
     {| struct_name := "mem_req";
