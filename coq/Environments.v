@@ -41,6 +41,7 @@ Section Contexts.
       end ctx.
   Proof. destruct ctx; reflexivity. Defined.
 
+  (* create a context by provinding a Value for each member *)
   Fixpoint ccreate (sig: list K) (f: forall k, member k sig -> V k) : context sig :=
     match sig return (forall k, member k sig -> V k) -> context sig with
     | nil => fun _ => CtxEmpty
@@ -48,6 +49,7 @@ Section Contexts.
                                (ccreate t (fun k m => f k (MemberTl k h t m)))
     end f.
 
+  (* get the value of a specific member of a ctx *)
   Fixpoint cassoc {sig} {k} (m: member k sig)
            (ctx: context sig) {struct m} : V k :=
     match m in (member y l) return (context l -> V y) with
