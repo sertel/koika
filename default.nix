@@ -49,8 +49,8 @@ mkCoqDerivation rec {
 
   preInstall = ''
     dune build README.html
-    mkdir -p $out/share/doc/koika
-    cp README.html $out/share/doc/koika/
+    mkdir -p $out/doc/koika
+    cp README.html $out/doc/koika/
   '';
 
   postInstall = ''
