@@ -138,7 +138,7 @@ module RelPath = struct
 
   open Core
 
-  let split_common_prefix l1 l2 =
+  let _split_common_prefix l1 l2 =
     let rec loop acc l1 l2 =
       match l1, l2 with
       | h1 :: t1, h2 :: t2 when h1 = h2 -> loop (h1 :: acc) t1 t2
