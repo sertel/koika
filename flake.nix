@@ -29,7 +29,6 @@
 
         packages = {
           default = self.packages.${system}.coq8_18-koika;
-          coq8_14-koika = pkgs.coqPackages_8_14.koika;
           coq8_18-koika = pkgs.coqPackages_8_18.koika;
           coqDev-koika = pkgs.coqPackages_koika.koika;
         };

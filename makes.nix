@@ -24,7 +24,7 @@
   };
   outputs."/build" = makeSearchPaths {
     bin = [
-      (inputs.nixpkgs.coqPackages_8_14.koika.override {
+      (inputs.nixpkgs.coqPackages_8_18.koika.override {
         doCheck = true;
       })
     ];
