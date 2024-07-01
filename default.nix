@@ -62,7 +62,7 @@ mkCoqDerivation rec {
   checkPhase = ''
     runHook preCheck
     ./coq.kernel.hack.sh
-    dune build @runtest
+    dune build --always-show-command-line --no-config --profile release @runtest
     runHook postCheck
   '';
 
