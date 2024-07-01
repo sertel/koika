@@ -18,3 +18,17 @@ Suppose Nix is set up correctly, you just run:
 ```sh
 nix run .#makes -- . /build
 ```
+
+## Locally reproduce a CI run
+
+Suppose you want to produce a CI run locally, maybe because it has failed on GitHub or because you want to run it on a different commit of a pull request that consist of multiple commits.
+You can adapt the previously shown call to `makes` to do that; replace `<rev>` with the commit hash of interest:
+
+```sh
+# use the commit directly from GitHub
+nix run .#makes -- github:Barkhausen-Institut/koika@<rev> /build
+# alternatively, if the commit is already locally available
+nix run .#makes -- local:"$PWD"@<rev> /build
+```
+
+`makes` downloads the repository in the state given in `<rev>` and executes the CI script referenced via `/build`.
