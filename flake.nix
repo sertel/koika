@@ -2,13 +2,15 @@
   description = "A core language for rule-based hardware design";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/release-23.11";
     flake-utils.url = "github:numtide/flake-utils";
+    makes.url = "github:fluidattacks/makes/24.02";
+    nixpkgs.url = "github:nixos/nixpkgs/release-23.11";
   };
 
   outputs = {
     self,
     flake-utils,
+    makes,
     nixpkgs,
     ...
   }:
@@ -32,6 +34,8 @@
           coq8_18-koika = pkgs.coqPackages_8_18.koika;
           coqDev-koika = pkgs.coqPackages_koika.koika;
         };
+
+        apps.makes = makes.apps.${system}.default;
       })
       // {
         # NOTE: To use this flake, apply the following overlay to nixpkgs and use

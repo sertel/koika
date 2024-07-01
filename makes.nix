@@ -12,7 +12,7 @@
   inputs = {
     # Use nixpkgs from recorded flake.lock
     nixpkgs = let
-      nixpkgsAttrs = (builtins.fromJSON (builtins.readFile ./flake.lock)).nodes.nixpkgs.locked;
+      nixpkgsAttrs = (builtins.fromJSON (builtins.readFile ./flake.lock)).nodes.nixpkgs_2.locked;
     in
       fetchNixpkgs {
         rev = nixpkgsAttrs.rev;
