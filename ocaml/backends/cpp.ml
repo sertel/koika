@@ -878,7 +878,7 @@ let compile (type pos_t var_t fn_name_t rule_name_t reg_t ext_fn_t)
         | [] -> ()
         | conflicts ->
            let names = List.map (fun r -> (hpp.cpp_register_sigs r).reg_name) conflicts |> String.concat ", " in
-           Printf.eprintf "Rule %s reads registers [%s] at port 1 \
+           Printf.eprintf "Warning: Rule %s reads registers [%s] at port 1 \
 after writing to them at port 1.
 These reads should observe the old value of the registers, but \
 implementing this in simulation causes unnecessary performance issues.
