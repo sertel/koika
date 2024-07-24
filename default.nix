@@ -53,11 +53,6 @@ mkCoqDerivation rec {
     cp README.html $out/doc/koika/
   '';
 
-  postInstall = ''
-    mkdir -p "$OCAMLFIND_DESTDIR"
-    mv "$out/lib/koika" "$OCAMLFIND_DESTDIR"
-  '';
-
   inherit doCheck;
   checkPhase = ''
     runHook preCheck
