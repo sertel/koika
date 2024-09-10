@@ -63,7 +63,7 @@ ocaml:
 #
 # This code is not very useful anymore, because everything, including selecting
 # which examples/tests are to be built, is done in examples/dune and tests/dune,
-# now.  The code is left here, because the dune code does support .etc
+# now.  The code is left here, because the dune code does not support .etc
 # supplements, yet, and to give make the right™ targets for examples/tests.
 # This means that the assignments to TESTS and EXAMPLES must be kept in sync
 # with their respective dune files!
@@ -72,12 +72,11 @@ target_directory = $(1).d
 target_directories = $(foreach fname,$(1),$(call target_directory,$(fname)))
 
 # Execute follow-ups if any
-cuttlec_recipe_code =
-# define cuttlec_recipe_coda =
-# 	$(verbose)if [ -d $<.etc ]; then cp -rf $<.etc/. "$(BUILD_DIR)$@"; fi
-# 	$(verbose)if [ -d $(dir $<)etc ]; then cp -rf $(dir $<)etc/. "$(BUILD_DIR)$@"; fi
-# 	$(verbose)if [ -f "$(BUILD_DIR)$@/Makefile" ]; then $(MAKE) -C "$(BUILD_DIR)$@"; fi
-# endef
+define cuttlec_recipe_coda =
+	$(verbose)if [ -d $<.etc ]; then cp -rf $<.etc/. "$(BUILD_DIR)$@"; fi
+	$(verbose)if [ -d $(dir $<)etc ]; then cp -rf $(dir $<)etc/. "$(BUILD_DIR)$@"; fi
+	$(verbose)if [ -f "$(BUILD_DIR)$@/Makefile" ]; then $(MAKE) -C "$(BUILD_DIR)$@"; fi
+endef
 
 define cuttlec_recipe =
 	@printf "\n-- Compiling %s --\n" "$<"
@@ -111,9 +110,9 @@ clean-tests:
 	find tests/ -type d  \( -name '*.d' \) -exec rm -rf {} +
 	rm -rf $(BUILD_DIR)/tests
 
-# HACK: Part One of a two-part hack. Dune does not provide the OCaml libs of Coq
-# to its targets. Thus, link the libs to a well-known location and add specific
-# "-nI" include flags in e.g. examples/rv/dune.
+# HACK: Part One of a two-part hack. When using nix, dune does not provide the
+# OCaml libs of Coq to its targets. Thus, link the libs to a well-known location
+# and add specific "-nI" include flags in e.g. examples/rv/dune.
 coq.kernel:
 	@./coq.kernel.hack.sh
 
