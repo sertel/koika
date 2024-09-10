@@ -2,4 +2,5 @@
  ;; (package koika) ;; Not packaged, to make dune build @install faster
  (name Koika.CompilerCorrectness)
  (modules :standard)
+ (mode vo)
  (theories Koika))

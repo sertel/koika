@@ -38,3 +38,7 @@ _opam/
 _objects/
 .nia.cache
 .lia.cache
+/.direnv/
+/.envrc
+result*
+/coq.kernel

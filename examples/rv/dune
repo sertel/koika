@@ -1,32 +1,14 @@
 (coq.theory
  (name rv)
  (modules :standard)
- (theories Koika))
+ (mode vo)
+ (theories Ltac2 Koika)
+ (flags "-w" "-overriding-logical-loadpath" -nI ../../coq.kernel))
 
+(include dune.inc)
 
-;; --- DO NOT EDIT BELOW THIS LINE (use ‘make configure’) ---
-(dirs :standard _objects)
-
-
-;; -*- dune -*-
-(subdir "_objects/rv32e.v"
- (rule (write-file "rv32e_extr.v"
-                   "Require Coq.extraction.Extraction rv.rv32e.
-Extraction \"rv32e.ml\" rv32e.prog."))
- (coq.extraction
-  (prelude rv32e_extr)
-  (extracted_modules rv32e)
-  (theories Koika rv)
-  (flags "-w" "-overriding-logical-loadpath")))
-
-
-;; -*- dune -*-
-(subdir "_objects/rv32i.v"
- (rule (write-file "rv32i_extr.v"
-                   "Require Coq.extraction.Extraction rv.rv32i.
-Extraction \"rv32i.ml\" rv32i.prog."))
- (coq.extraction
-  (prelude rv32i_extr)
-  (extracted_modules rv32i)
-  (theories Koika rv)
-  (flags "-w" "-overriding-logical-loadpath")))
+(rule
+ (mode promote)
+ (alias genrules)
+ (deps (file rv32i.v) (file rv32e.v))
+ (action (with-stdout-to dune.inc (run ../../ruleGen.exe rv %{deps}))))

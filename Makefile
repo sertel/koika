@@ -14,8 +14,8 @@ endif
 
 OBJ_DIR := _obj
 BUILD_DIR := _build/default
-COQ_BUILD_DIR := ${BUILD_DIR}/coq
-OCAML_BUILD_DIR := ${BUILD_DIR}/ocaml
+COQ_BUILD_DIR := $(BUILD_DIR)/coq
+OCAML_BUILD_DIR := $(BUILD_DIR)/ocaml
 
 V ?=
 verbose := $(if $(V),,@)
@@ -60,69 +60,61 @@ ocaml:
 # and eval because patterns like ‘%1/_objects/%2.v/: %1/%2.v’ aren't supported.
 # https://www.gnu.org/software/make/manual/html_node/Canned-Recipes.html
 # https://www.gnu.org/software/make/manual/html_node/Eval-Function.html
+#
+# This code is not very useful anymore, because everything, including selecting
+# which examples/tests are to be built, is done in examples/dune and tests/dune,
+# now.  The code is left here, because the dune code does not support .etc
+# supplements, yet, and to give make the right™ targets for examples/tests.
+# This means that the assignments to TESTS and EXAMPLES must be kept in sync
+# with their respective dune files!
 
-target_directory = $(dir $(1))_objects/$(notdir $(1))
+target_directory = $(1).d
 target_directories = $(foreach fname,$(1),$(call target_directory,$(fname)))
-
-define cuttlec_recipe_prelude =
-	@printf "\n-- Compiling %s --\n" "$<"
-endef
 
 # Execute follow-ups if any
 define cuttlec_recipe_coda =
-	$(verbose)if [ -d $<.etc ]; then cp -rf $<.etc/. "$@"; fi
-	$(verbose)if [ -d $(dir $<)etc ]; then cp -rf $(dir $<)etc/. "$@"; fi
-	$(verbose)if [ -f "$@/Makefile" ]; then $(MAKE) -C "$@"; fi
+	$(verbose)if [ -d $<.etc ]; then cp -rf $<.etc/. "$(BUILD_DIR)$@"; fi
+	$(verbose)if [ -d $(dir $<)etc ]; then cp -rf $(dir $<)etc/. "$(BUILD_DIR)$@"; fi
+	$(verbose)if [ -f "$(BUILD_DIR)$@/Makefile" ]; then $(MAKE) -C "$(BUILD_DIR)$@"; fi
 endef
 
-# Compile a .lv file
-define cuttlec_lv_recipe_body =
-	dune exec -- cuttlec "$<" \
-		-T all -o "$@" $(if $(findstring .1.,$<),--expect-errors 2> "$@stderr")
+define cuttlec_recipe =
+	@printf "\n-- Compiling %s --\n" "$<"
+	dune build "@$@/runtest"
 endef
 
-# Compile a .v file
-define cuttlec_v_recipe_body =
-	dune build "$@/$(notdir $(<:.v=.ml))"
-	dune exec -- cuttlec "${BUILD_DIR}/$@/$(notdir $(<:.v=.ml))" -T all -o "$@"
-endef
-
-define cuttlec_lv_template =
+define cuttlec_template =
 $(eval dirpath := $(call target_directory,$(1)))
-$(dirpath) $(dirpath)/: $(1) ocaml | configure
-	$(value cuttlec_recipe_prelude)
-	$(value cuttlec_lv_recipe_body)
-	$(value cuttlec_recipe_coda)
-endef
-
-define cuttlec_v_template =
-$(eval dirpath := $(call target_directory,$(1)))
-$(dirpath) $(dirpath)/: $(1) ocaml | configure
-	$(value cuttlec_recipe_prelude)
-	$(value cuttlec_v_recipe_body)
+$(dirpath) $(dirpath)/: $(1)
+	$(value cuttlec_recipe)
 	$(value cuttlec_recipe_coda)
 endef
 
 TESTS := $(wildcard tests/*.lv) $(wildcard tests/*.v)
 EXAMPLES := $(wildcard examples/*.lv) $(wildcard examples/*.v) examples/rv/rv32i.v examples/rv/rv32e.v
 
-configure:
-	etc/configure $(filter %.v,${TESTS} ${EXAMPLES})
+$(foreach fname,$(EXAMPLES) $(TESTS),\
+	$(eval $(call cuttlec_template,$(fname))))
 
-$(foreach fname,$(filter %.lv, $(EXAMPLES) $(TESTS)),\
-	$(eval $(call cuttlec_lv_template,$(fname))))
-$(foreach fname,$(filter %.v, $(EXAMPLES) $(TESTS)),\
-	$(eval $(call cuttlec_v_template,$(fname))))
+examples: coq.kernel
+	dune build @examples/runtest
 
-examples: $(call target_directories,$(EXAMPLES));
 clean-examples:
-	find examples/ -type d \( -name _objects -or -name _build \) -exec rm -rf {} +
-	rm -rf ${BUILD_DIR}/examples
+	find examples/ -type d \( -name '*.d' \) -exec rm -rf {} +
+	rm -rf $(BUILD_DIR)/examples
 
-tests: $(call target_directories,$(TESTS));
+tests:
+	dune build @tests/runtest
+
 clean-tests:
-	find tests/ -type d  \( -name _objects -or -name _build \) -exec rm -rf {} +
-	rm -rf ${BUILD_DIR}/tests
+	find tests/ -type d  \( -name '*.d' \) -exec rm -rf {} +
+	rm -rf $(BUILD_DIR)/tests
+
+# HACK: Part One of a two-part hack. When using nix, dune does not provide the
+# OCaml libs of Coq to its targets. Thus, link the libs to a well-known location
+# and add specific "-nI" include flags in e.g. examples/rv/dune.
+coq.kernel:
+	@./coq.kernel.hack.sh
 
 .PHONY: configure examples clean-examples tests clean-tests
 
@@ -144,7 +136,7 @@ all: coq ocaml examples tests readme;
 
 clean: clean-tests clean-examples
 	dune clean
-	rm -f koika-*.tar.gz
+	rm -f koika-*.tar.gz coq.kernel
 
 .PHONY: readme package dune-all all clean
 

@@ -1,4 +1,6 @@
 (coq.theory
  (package koika)
  (name Koika)
- (modules :standard))
+ (modules :standard)
+ (mode vo)
+ (theories Ltac2))
