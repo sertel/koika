@@ -1,9 +1,11 @@
 (*! Utilities | Dependent type tracking membership into a list !*)
 Require Import Koika.Common.
 
+(* This type proves that a certain element k is part of a list *)
 Inductive member {K: Type}: K -> list K -> Type :=
 | MemberHd: forall k sig, member k (k :: sig)
 | MemberTl: forall k k' sig, member k sig -> member k (k' :: sig).
+
 
 (* https://github.com/coq/coq/issues/10749 *)
 Definition eq_type {A} (a a': A) : Type :=

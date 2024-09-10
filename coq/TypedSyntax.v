@@ -34,17 +34,17 @@ Section Syntax.
           (value: action sig (R idx)) : action sig unit_t
   | Unop {sig}
           (fn: fn1)
-          (arg1: action sig (Sigma1 fn).(arg1Sig))
-    : action sig (Sigma1 fn).(retSig)
+          (arg1: action sig (arg1Sig (Sigma1 fn)))
+    : action sig (retSig (Sigma1 fn))
   | Binop {sig}
           (fn: fn2)
-          (arg1: action sig (Sigma2 fn).(arg1Sig))
-          (arg2: action sig (Sigma2 fn).(arg2Sig))
-    : action sig (Sigma2 fn).(retSig)
+          (arg1: action sig (arg1Sig (Sigma2 fn)))
+          (arg2: action sig (arg2Sig (Sigma2 fn)))
+    : action sig (retSig (Sigma2 fn))
   | ExternalCall {sig}
                  (fn: ext_fn_t)
-                 (arg: action sig (Sigma fn).(arg1Sig))
-    : action sig (Sigma fn).(retSig)
+                 (arg: action sig (arg1Sig (Sigma fn)))
+    : action sig (retSig (Sigma fn))
   | InternalCall {sig tau}
                  (fn : fn_name_t)
                  {argspec : tsig var_t}

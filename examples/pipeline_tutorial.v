@@ -404,7 +404,8 @@ The proof is a two-induction (captured by the ``Div2.ind_0_1_SS`` lemma); it tel
     Proof.
       intros r n.
       rewrite !iterate_S_acc, phi2_correct.
-      revert n; apply Div2.ind_0_1_SS; simpl. (* .unfold *)
+      revert n; apply Nat.pair_induction; simpl.
+      - Morphisms.solve_proper.
       - reflexivity.
       - unfold cycle; reflexivity.
       - intros n IH; simpl in IH; rewrite IH; reflexivity.

@@ -22,9 +22,9 @@ Definition empty_csigma fn
 Definition empty_ext_fn_props {A} (fn: empty_ext_fn_t)
   : A := match fn with end.
 
-Instance Lift_empty {A} : Lift empty_ext_fn_t A :=
+#[global] Instance Lift_empty {A} : Lift empty_ext_fn_t A :=
   fun fn => match fn with end.
-Instance Lift_self {A} : Lift A A :=
+#[global] Instance Lift_self {A} : Lift A A :=
   fun fn => fn.
 
 Section Packages.

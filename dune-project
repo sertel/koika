@@ -1,8 +1,7 @@
-(lang dune 2.5)
-(using coq 0.2)
+(lang dune 3.11)
+(using coq 0.8)
 
 (generate_opam_files true)
-(allow_approximate_merlin)
 
 (name koika)
 (version 0.0.1)

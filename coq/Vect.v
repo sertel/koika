@@ -188,9 +188,11 @@ Fixpoint vect_app {T} {sz1 sz2} (v1: vect T sz1) (v2: vect T sz2) {struct sz1} :
   | S sz1 => fun v1 => vect_cons (vect_hd v1) (vect_app (vect_tl v1) v2)
   end v1.
 
-Fixpoint vect_app_nil_cast n:
-  n = n + 0.
-Proof. destruct n; cbn; auto. Defined.
+Fixpoint vect_app_nil_cast (n : nat) : n = n + 0 :=
+  match n as n0 return (n0 = n0 + 0) with
+  | 0 => eq_refl
+  | S n0 => (fun n1 : nat => f_equal_nat nat S n1 (n1 + 0) (vect_app_nil_cast n1)) n0
+  end.
 
 Lemma vect_app_nil :
   forall {T sz} (v: vect T sz) (v0: vect T 0),
@@ -417,9 +419,15 @@ Definition vect_cycle_l {T sz} n (v: vect T sz) :=
 Definition vect_cycle_r {T sz} n (v: vect T sz) :=
   vect_dotimes vect_cycle_r1 n v.
 
-Fixpoint vect_skipn_cast n:
+(* Fixpoint vect_skipn_cast n:
   n = n - 0.
-Proof. destruct n; cbn; auto. Defined.
+Proof. destruct n; cbn; auto. Defined. *)
+
+Definition vect_skipn_cast (n : nat) : n = n - 0 :=
+  match n as n0 return (n0 = n0 - 0) with
+  | 0 => eq_refl
+  | S n0 => (fun n1 : nat => eq_refl) n0
+  end.
 
 Fixpoint vect_skipn {T sz} (n: nat) (v: vect T sz) : vect T (sz - n) :=
   match n with
@@ -765,23 +773,23 @@ Section Conversions.
   Qed.
 End Conversions.
 
-Hint Rewrite @vect_to_list_eq_rect : vect_to_list.
-Hint Rewrite @vect_to_list_eq_rect_fn : vect_to_list.
-Hint Rewrite @vect_to_list_app : vect_to_list.
-Hint Rewrite @vect_to_list_firstn : vect_to_list.
-Hint Rewrite @vect_to_list_skipn : vect_to_list.
-Hint Rewrite @vect_to_list_const : vect_to_list.
-Hint Rewrite @vect_to_list_map : vect_to_list.
-Hint Rewrite @vect_to_list_length : vect_to_list.
+#[global] Hint Rewrite @vect_to_list_eq_rect : vect_to_list.
+#[global] Hint Rewrite @vect_to_list_eq_rect_fn : vect_to_list.
+#[global] Hint Rewrite @vect_to_list_app : vect_to_list.
+#[global] Hint Rewrite @vect_to_list_firstn : vect_to_list.
+#[global] Hint Rewrite @vect_to_list_skipn : vect_to_list.
+#[global] Hint Rewrite @vect_to_list_const : vect_to_list.
+#[global] Hint Rewrite @vect_to_list_map : vect_to_list.
+#[global] Hint Rewrite @vect_to_list_length : vect_to_list.
 
-Hint Rewrite @firstn_firstn : vect_to_list_cleanup.
-Hint Rewrite @List.firstn_app : vect_to_list_cleanup.
-Hint Rewrite @List.skipn_app : vect_to_list.
-Hint Rewrite @List.firstn_nil : vect_to_list_cleanup.
-Hint Rewrite @List.firstn_length : vect_to_list_cleanup.
-Hint Rewrite @Nat.sub_0_r : vect_to_list_cleanup.
-Hint Rewrite @List.app_nil_r : vect_to_list_cleanup.
-Hint Rewrite @Nat.sub_diag : vect_to_list_cleanup.
+#[global] Hint Rewrite @firstn_firstn : vect_to_list_cleanup.
+#[global] Hint Rewrite @List.firstn_app : vect_to_list_cleanup.
+#[global] Hint Rewrite @List.skipn_app : vect_to_list.
+#[global] Hint Rewrite @List.firstn_nil : vect_to_list_cleanup.
+#[global] Hint Rewrite @List.firstn_length : vect_to_list_cleanup.
+#[global] Hint Rewrite @Nat.sub_0_r : vect_to_list_cleanup.
+#[global] Hint Rewrite @List.app_nil_r : vect_to_list_cleanup.
+#[global] Hint Rewrite @Nat.sub_diag : vect_to_list_cleanup.
 
 Definition vect_NoDup {T n} (v: vect T n) : Prop :=
   List.NoDup (vect_to_list v).
@@ -842,9 +850,9 @@ Proof.
     contradiction Heq; reflexivity.
 Qed.
 
-Instance EqDec_vect_nil T `{EqDec T} : EqDec (vect_nil_t T) := _.
-Instance EqDec_vect_cons A B `{EqDec A} `{EqDec B} : EqDec (vect_cons_t A B) := _.
-Instance EqDec_vect T n `{EqDec T} : EqDec (vect T n).
+#[global] Instance EqDec_vect_nil T `{EqDec T} : EqDec (vect_nil_t T) := _.
+#[global] Instance EqDec_vect_cons A B `{EqDec A} `{EqDec B} : EqDec (vect_cons_t A B) := _.
+#[global] Instance EqDec_vect T n `{EqDec T} : EqDec (vect T n).
 Proof. induction n; cbn; eauto using EqDec_vect_nil, EqDec_vect_cons; eassumption. Defined.
 
 Require Import Lia.
@@ -939,7 +947,7 @@ End VectNotations.
 Export VectNotations.
 
 (* https://coq-club.inria.narkive.com/HeWqgvKm/boolean-simplification *)
-Hint Rewrite
+#[global] Hint Rewrite
      andb_diag (** b && b -> b **)
      orb_diag (** b || b -> b **)
      orb_false_r (** b || false -> b *)
@@ -1183,10 +1191,10 @@ Module Bits.
       all: rewrite ?Nat2N.inj_succ, ?N.pow_succ_r'.
       all: set (N.of_nat sz) as nz.
       all: pose proof N.pow_nonzero 2 nz ltac:(lia).
-      all: rewrite !N.mod_eq, <- !N.div_div, ?N_double_div_2, ?N_succ_double_div_2 by lia.
+      all: rewrite !N.Div0.mod_eq, <- !N.Div0.div_div, ?N_double_div_2, ?N_succ_double_div_2 by lia.
       all: rewrite ?(N.double_spec n), ?(N.succ_double_spec n).
       - lia.
-      - pose proof N.mul_div_le n (2 ^ nz).
+      - pose proof N.Div0.mul_div_le n (2 ^ nz).
         rewrite N.mul_sub_distr_l, N.add_sub_assoc; lia.
     Qed.
 
@@ -1331,7 +1339,7 @@ Module Bits.
       pose proof to_N_bounded bs2.
       pose proof Npow2_ge_1.
       set (to_N bs1) as n1; set (to_N bs2) as n2; set (2 ^ N.of_nat sz) as mz.
-      rewrite <- N.add_mod by lia.
+      rewrite <- N.Div0.add_mod by lia.
       f_equal; lia.
     Qed.
 
@@ -1386,7 +1394,7 @@ Module Bits.
       forall sz width offset,
         Nat.min sz (Nat.min offset sz + (width + (sz - (offset + width)))) = sz.
     Proof.
-      induction sz, width, offset; cbn; auto using Min.min_idempotent.
+      induction sz, width, offset; cbn; auto using Nat.min_id.
       - f_equal; apply (IHsz 0 offset).
       - f_equal; apply (IHsz width 0).
       - f_equal; apply (IHsz (S width) offset).
@@ -1487,7 +1495,7 @@ Module Bits.
   End Binops.
 End Bits.
 
-Hint Rewrite
+#[global] Hint Rewrite
      @Bits.and_diag
      @Bits.or_diag
      @Bits.or_zeroes_r

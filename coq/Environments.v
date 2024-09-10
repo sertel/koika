@@ -41,6 +41,7 @@ Section Contexts.
       end ctx.
   Proof. destruct ctx; reflexivity. Defined.
 
+  (* create a context by provinding a Value for each member *)
   Fixpoint ccreate (sig: list K) (f: forall k, member k sig -> V k) : context sig :=
     match sig return (forall k, member k sig -> V k) -> context sig with
     | nil => fun _ => CtxEmpty
@@ -48,6 +49,7 @@ Section Contexts.
                                (ccreate t (fun k m => f k (MemberTl k h t m)))
     end f.
 
+  (* get the value of a specific member of a ctx *)
   Fixpoint cassoc {sig} {k} (m: member k sig)
            (ctx: context sig) {struct m} : V k :=
     match m in (member y l) return (context l -> V y) with
@@ -506,9 +508,9 @@ Defined.
 
 Definition ContextEnv {K} {FT: FiniteType K}: Env K.
   unshelve refine {| env_t V := context V finite_elements;
-                     getenv {V} ctx k := cassoc (finite_member k) ctx;
-                     putenv {V} ctx k v := creplace (finite_member k) v ctx;
-                     create {V} fn := ccreate finite_elements (fun k _ => fn k) |}.
+                     getenv V ctx k := cassoc (finite_member k) ctx;
+                     putenv V ctx k v := creplace (finite_member k) v ctx;
+                     create V fn := ccreate finite_elements (fun k _ => fn k) |}.
   - intros; rewrite <- ccreate_cassoc; apply ccreate_funext.
     intros; f_equal; apply member_NoDup; try typeclasses eauto; apply finite_nodup.
   - intros; apply ccreate_funext; eauto.

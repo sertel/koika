@@ -1,5 +1,6 @@
 (*! Utilities | Show typeclass (α → string) !*)
 Require Export Coq.Strings.String.
+Require Import Coq.Arith.PeanoNat.
 
 Class Show (A: Type) :=
   { show: A -> string }.
@@ -7,14 +8,14 @@ Class Show (A: Type) :=
 Module Show_nat.
   Lemma digit_lt_base m {n} : not (m + n < m).
   Proof.
-    red; intros; eapply Le.le_Sn_n; eauto using Le.le_trans, Plus.le_plus_l.
+    red; intros; eapply Nat.nle_succ_diag_l; eauto using Nat.le_trans, Nat.le_add_r.
   Qed.
 
-  Definition string_of_base10_digit (n: {n | n < 10}) :=
+  Definition string_of_base10_digit (n: {i : nat | i < 10}) :=
     match n with
     | exist _ 0 _ => "0" | exist _ 1 _ => "1" | exist _ 2 _ => "2" | exist _ 3 _ => "3" | exist _ 4 _ => "4"
     | exist _ 5 _ => "5" | exist _ 6 _ => "6" | exist _ 7 _ => "7" | exist _ 8 _ => "8" | exist _ 9 _ => "9"
-    | exist _ n pr => False_rect _ (digit_lt_base 10 pr)
+    | exist _ _n pr => False_rect _ (digit_lt_base 10 pr)
     end%string.
 
   Fixpoint string_of_nat_rec (fuel: nat) (n: nat) :=
@@ -31,8 +32,8 @@ Module Show_nat.
     string_of_nat_rec (S n) n.
 End Show_nat.
 
-Instance Show_nat : Show nat :=
-  { show := Show_nat.string_of_nat }.
+#[export] Instance Show_nat : Show nat :=
+  {| show := Show_nat.string_of_nat |}.
 
-Instance Show_string : Show string :=
+#[export] Instance Show_string : Show string :=
   {| show x := x |}.

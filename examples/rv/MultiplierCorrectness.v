@@ -35,9 +35,9 @@ Module MultiplierProofs.
     rewrite N.pow_succ_r'.
     rewrite (N.div_mod' a (2 ^ n)) at 1.
     rewrite N.testbit_spec'.
-    rewrite N.add_mod by (destruct n; cbn; lia).
+    rewrite N.Div0.add_mod by (destruct n; cbn; lia).
     rewrite (N.mul_comm 2 (2 ^ n)).
-    rewrite N.mul_mod_distr_l by (destruct n; cbn; lia).
+    rewrite N.Div0.mul_mod_distr_l by (destruct n; cbn; lia).
     rewrite (N.mod_small (a mod 2 ^ n)).
     - rewrite N.mod_small; [ ring | ].
       eapply N.le_lt_trans.

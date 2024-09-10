@@ -33,10 +33,10 @@ Section Lowering.
 
   Section Action.
     Definition lower_unop {sig} (fn: fn1)
-               (a: low_action sig (type_sz (PrimSignatures.Sigma1 fn).(arg1Sig))):
-      low_action sig (type_sz (PrimSignatures.Sigma1 fn).(retSig)) :=
-      let lArg1 fn := low_action sig (type_sz (PrimSignatures.Sigma1 fn).(arg1Sig)) in
-      let lRet fn := low_action sig (type_sz (PrimSignatures.Sigma1 fn).(retSig)) in
+               (a: low_action sig (type_sz (arg1Sig (PrimSignatures.Sigma1 fn)))):
+      low_action sig (type_sz (retSig (PrimSignatures.Sigma1 fn))) :=
+      let lArg1 fn := low_action sig (type_sz (arg1Sig (PrimSignatures.Sigma1 fn))) in
+      let lRet fn := low_action sig (type_sz (retSig (PrimSignatures.Sigma1 fn))) in
       match fn return lArg1 fn -> lRet fn with
       | Display fn => fun a => LoweredSyntax.Unop (Lowered (DisplayBits fn)) a
       | Conv tau fn => fun a =>
@@ -59,12 +59,12 @@ Section Lowering.
       end a.
 
     Definition lower_binop {sig} (fn: fn2)
-               (a1: low_action sig (type_sz (PrimSignatures.Sigma2 fn).(arg1Sig)))
-               (a2: low_action sig (type_sz (PrimSignatures.Sigma2 fn).(arg2Sig))):
-      low_action sig (type_sz (PrimSignatures.Sigma2 fn).(retSig)) :=
-      let lArg1 fn := low_action sig (type_sz (PrimSignatures.Sigma2 fn).(arg1Sig)) in
-      let lArg2 fn := low_action sig (type_sz (PrimSignatures.Sigma2 fn).(arg2Sig)) in
-      let lRet fn := low_action sig (type_sz (PrimSignatures.Sigma2 fn).(retSig)) in
+               (a1: low_action sig (type_sz (arg1Sig (PrimSignatures.Sigma2 fn))))
+               (a2: low_action sig (type_sz (arg2Sig (PrimSignatures.Sigma2 fn)))):
+      low_action sig (type_sz (retSig (PrimSignatures.Sigma2 fn))) :=
+      let lArg1 fn := low_action sig (type_sz (arg1Sig (PrimSignatures.Sigma2 fn))) in
+      let lArg2 fn := low_action sig (type_sz (arg2Sig (PrimSignatures.Sigma2 fn))) in
+      let lRet fn := low_action sig (type_sz (retSig (PrimSignatures.Sigma2 fn))) in
       match fn return lArg1 fn -> lArg2 fn -> lRet fn with
       | Eq tau negate => fun a1 a2 => LoweredSyntax.Binop (EqBits (type_sz tau) negate) a1 a2
       | Bits2 fn => fun a1 a2 => LoweredSyntax.Binop fn a1 a2
