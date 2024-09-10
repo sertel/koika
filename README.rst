@@ -26,13 +26,13 @@ Getting started
 Installing dependencies and building from source
 ------------------------------------------------
 
-* OCaml 4.12 `opam <https://opam.ocaml.org/doc/Install.html>`_ 2.0 or later, GNU make.
+* OCaml 4.14 `opam <https://opam.ocaml.org/doc/Install.html>`_ 2.0 or later, GNU make.
 
-* Coq 8.14::
+* Coq 8.18::
 
-    opam install coq=8.14
+    opam install coq=8.18
 
-* Dune 3.11 or later::
+* Dune 3.14 or later::
 
     opam upgrade dune
 
@@ -54,7 +54,7 @@ You can compile the full distribution, including examples, tests, and proofs by 
 
 For reproducibility, here is one set of versions known to work:
 
-- OCaml 4.12.1 with ``opam install base=v0.13.1 coq=8.14 core=v0.15.1 dune=3.11.1 hashcons=1.4 parsexp=v0.15.0 stdio=v0.15.0 zarith=1.13``
+- OCaml 4.14.2 with ``opam install base=v0.16.2 coq=8.18 core=v0.16.2 dune=3.15.1 hashcons=1.4 parsexp=v0.16.0 stdio=v0.16.0 zarith=1.13``
 
 - Additionally, we provide a ``flake.nix`` file that allows you to download, install and use a working set of programs by just calling ``nix develop`` (provided, that you have Nix installed. See also the `Nix Package Manager <https://nixos.org/download>`_).
 
