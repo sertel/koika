@@ -1642,11 +1642,6 @@ let input_of_sim_package
                    | None -> None
                    | Some s -> Some (Util.string_of_coq_string s)); }
 
-let clang_format fname =
-  let style = "-style={BasedOnStyle: llvm, ColumnLimit: 100}" in
-  try Common.command "clang-format" ["-i"; style; fname]
-  with CompilationError _ -> ()
-
 let flags_standard =
   ["--std=c++14"]
 let flags_opt =
@@ -1662,8 +1657,7 @@ let compile_cpp fname =
 
 let write_formatted fpath_noext ext buf =
   let fname = fpath_noext ^ ext in
-  Common.with_output_to_file fname Buffer.output_buffer buf;
-  clang_format fname
+  Common.with_output_to_file fname Buffer.output_buffer buf
 
 let write_preamble dpath =
   let fpath = Filename.concat dpath cuttlesim_hpp_fname in
