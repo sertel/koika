@@ -408,7 +408,7 @@ The proof is a two-induction (captured by the ``Div2.ind_0_1_SS`` lemma); it tel
       - Morphisms.solve_proper.
       - reflexivity.
       - unfold cycle; reflexivity.
-      - intros n IH; simpl in IH; rewrite IH; reflexivity.
+      - simpl; intros n IH; simpl in IH; rewrite IH; reflexivity.
     Qed.
 
 (*|
