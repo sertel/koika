@@ -83,7 +83,7 @@ module ResolvedAST = struct
     | Unop of { fn: (Extr.PrimUntyped.ufn1) locd; arg: uaction locd }
     | Binop of { fn: (Extr.PrimUntyped.ufn2) locd; a1: uaction locd; a2: uaction locd }
     | ExternalCall of { fn: ffi_signature locd; arg: uaction locd }
-    | InternalCall of { fn: uaction locd internal_function; args: uaction locd list }
+    | InternalCall of { fn: uaction locd uinternal_function; args: uaction locd list }
     | Sugar of usugar
   and usugar =
     | AstError
@@ -116,7 +116,7 @@ module ResolvedAST = struct
        | ExternalCall { fn; arg } -> UExternalCall (fn.lcnt, translate_action arg)
        | InternalCall { fn; args } ->
           UInternalCall
-            (Util.extr_intfun_of_intfun translate_action fn,
+            (Util.extr_uintfun_of_uintfun translate_action fn,
              List.map translate_action args)
        | Sugar u ->
           Extr.USugar
@@ -198,7 +198,7 @@ type unresolved_unit = {
 type resolved_extfun = ffi_signature
 
 type resolved_defun =
-  ResolvedAST.uaction locd internal_function
+  ResolvedAST.uaction locd uinternal_function
 
 type resolved_fn =
   | FnExternal of ffi_signature
@@ -1605,10 +1605,10 @@ let resolve_fn_decl types fns { ufn_name; ufn_signature; ufn_rettype; ufn_body }
    match ufn_body with
    | InternalUfn body ->
       let body = resolve_action types fns [] body in
-      InternalDecl { int_name = ufn_name.lcnt;
-                     int_retSig = rettype;
-                     int_argspec = args;
-                     int_body = body }
+      InternalDecl { uint_name = ufn_name.lcnt;
+                     uint_retSig = rettype;
+                     uint_argspec = args;
+                     uint_body = body }
    | ExternalUfn ->
       let unit_t = Bits_t 0 in
       let ffi_argtype = match List.map snd args with

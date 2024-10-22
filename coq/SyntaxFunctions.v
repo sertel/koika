@@ -40,7 +40,7 @@ Section SyntaxFunctions.
         | UExternalCall ufn arg =>
           UExternalCall ufn (r 0 arg)
         | UInternalCall ufn arg =>
-          let ufn := map_intf_body (r 0) ufn in
+          let ufn := map_uintf_body (r 0) ufn in
           let args := snd (foldi (fun n a args => (r n a :: args)) 1 [] arg) in
           UInternalCall ufn args
         | UAPos _ e => (r 0 e)
@@ -78,7 +78,7 @@ Section SyntaxFunctions.
                  foldi (fun n a elements => (r n a) :: elements) 0 [] elements in
              UArrayInit tau elements
            | UCallModule fR fSigma ufn args =>
-             let ufn := map_intf_body (r 0) ufn in
+             let ufn := map_uintf_body (r 0) ufn in
              let args := snd (foldi (fun n a args => (r n a :: args)) 1 [] args) in
              UCallModule fR fSigma ufn args
            end.
@@ -154,11 +154,11 @@ Section SyntaxFunctions.
               let '(f, arg) := pe 0 arg in
               (f, UExternalCall ufn arg)
             | UInternalCall ufn args =>
-              let '(fbody, body) := pe 0 ufn.(int_body) in
+              let '(fbody, body) := pe 0 ufn.(uint_body) in
               let ufn :=
                   if fbody then
                     (* Only unfold the body if the error is in it *)
-                    map_intf_body (fun _ => body) ufn
+                    map_uintf_body (fun _ => body) ufn
                   else ufn in
               let '(n, (fargs, args)) :=
                   foldi (fun n arg '(fargs, args) =>
@@ -228,10 +228,10 @@ Section SyntaxFunctions.
                        0 ([], []) fields in
              (ffields, UStructInit sig fields)
            | UCallModule fR fSigma ufn args =>
-              let '(fbody, body) := pe 0 ufn.(int_body) in
+              let '(fbody, body) := pe 0 ufn.(uint_body) in
               let ufn :=
                   if fbody then (* Only unfold the body if the error is in it *)
-                    map_intf_body (fun _ => body) ufn
+                    map_uintf_body (fun _ => body) ufn
                   else ufn in
               let '(n, (fargs, args)) :=
                   foldi (fun n arg '(fargs, args) =>
@@ -267,7 +267,7 @@ Section SyntaxFunctions.
            | UInternalCall ufn args =>
              List.fold_left
                (fun acc arg => acc + uaction_size arg)
-               args (uaction_size ufn.(int_body))
+               args (uaction_size ufn.(uint_body))
            | UAPos p e => uaction_size e
            | USugar s => usugar_size s
            | _ => 0
@@ -301,7 +301,7 @@ Section SyntaxFunctions.
                 | UCallModule fR fSigma fn args =>
                   List.fold_left
                     (fun acc arg => acc + uaction_size arg)
-                    args (uaction_size fn.(int_body))
+                    args (uaction_size fn.(uint_body))
                 | _ => 0
                 end)%N.
   End TermSize.

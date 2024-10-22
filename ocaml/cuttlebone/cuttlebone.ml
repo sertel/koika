@@ -92,17 +92,17 @@ module Util = struct
     Extr.{ argSigs = Extr.vect_of_list [extr_type_of_typ ffi_argtype];
           retSig = extr_type_of_typ ffi_rettype }
 
-  let extr_intfun_of_intfun fbody (fsig: _ Common.internal_function) =
-    { Extr.int_name = fsig.int_name;
-      Extr.int_argspec = List.map (fun (nm, tau) -> nm, extr_type_of_typ tau) fsig.int_argspec;
-      Extr.int_retSig = extr_type_of_typ fsig.int_retSig;
-      Extr.int_body = fbody fsig.int_body }
+  let extr_uintfun_of_uintfun fbody (fsig: _ Common.uinternal_function) =
+    { Extr.uint_name = fsig.uint_name;
+      Extr.uint_argspec = List.map (fun (nm, tau) -> nm, extr_type_of_typ tau) fsig.uint_argspec;
+      Extr.uint_retSig = extr_type_of_typ fsig.uint_retSig;
+      Extr.uint_body = fbody fsig.uint_body }
 
-  let intfun_of_extr_intfun fbody (fsig: _ Extr.internalFunction) =
-    { int_name = fsig.int_name;
-      int_argspec = List.map (fun (nm, tau) -> nm, typ_of_extr_type tau) fsig.int_argspec;
-      int_retSig = typ_of_extr_type fsig.int_retSig;
-      int_body = fbody fsig.int_body }
+  let uintfun_of_extr_uintfun fbody (fsig: _ Extr.uInternalFunction') =
+    { uint_name = fsig.uint_name;
+      uint_argspec = List.map (fun (nm, tau) -> nm, typ_of_extr_type tau) fsig.uint_argspec;
+      uint_retSig = typ_of_extr_type fsig.uint_retSig;
+      uint_body = fbody fsig.uint_body }
 
   let extr_type_to_string tau =
     typ_to_string (typ_of_extr_type tau)

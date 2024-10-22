@@ -33,7 +33,7 @@ Section Desugaring.
     | UBinop fn arg1 arg2 => UBinop fn (d arg1) (d arg2)
     | UExternalCall fn arg => UExternalCall (fSigma fn) (d arg)
     | UInternalCall fn args =>
-      UInternalCall (map_intf_body d fn) (List.map d args)
+      UInternalCall (map_uintf_body d fn) (List.map d args)
     | UAPos p e => UAPos p (d e)
     | USugar s => desugar pos fR fSigma s
     end
@@ -77,7 +77,7 @@ Section Desugaring.
            SyntaxMacros.uswitch (d var) (d default) branches
          | UCallModule fR' fSigma' fn args =>
            let df body := desugar_action' pos (fun r => fR (fR' r)) (fun fn => fSigma (fSigma' fn)) body in
-           UInternalCall (map_intf_body df fn) (List.map d args)
+           UInternalCall (map_uintf_body df fn) (List.map d args)
          end.
 
   Definition desugar_action (pos: pos_t) (a: uaction reg_t ext_fn_t)

@@ -250,11 +250,11 @@ let locd_make lpos lcnt =
 let locd_of_pair (pos, x) =
   locd_make pos x
 
-type 'action internal_function = {
-    int_name: string;
-    int_argspec: (string * typ) list;
-    int_retSig: typ;
-    int_body: 'action
+type 'action uinternal_function = {
+    uint_name: string;
+    uint_argspec: (string * typ) list;
+    uint_retSig: typ;
+    uint_body: 'action
   }
 
 let with_output_to_file fname (f: out_channel -> 'a -> unit) (data: 'a) =

@@ -211,13 +211,13 @@ Section CPS.
                        k (Some (l, (sigma fn) v, Gamma))
                      | None => k None
                      end)
-      | InternalCall fn args body =>
+      | InternalCall fn args =>
         fun k =>
           interp_args'_cps (@cps) args
                            (fun res =>
                               match res with
                               | Some (l, argvals, Gamma) =>
-                                cps body (fun res =>
+                                cps fn.(int_body) (fun res =>
                                             match res with
                                             | Some (l, v, _) =>
                                               k (Some (l, v, Gamma))

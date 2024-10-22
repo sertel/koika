@@ -289,21 +289,28 @@ Definition CExternalSignature := CSig 1.
 Definition tsig var_t := list (var_t * type).
 Definition lsig := list nat.
 
-Record InternalFunction {var_t fn_name_t action: Type} :=
-  { int_name : fn_name_t;
-    int_argspec : tsig var_t;
-    int_retSig : type;
-    int_body : action }.
-Arguments InternalFunction : clear implicits.
-Arguments Build_InternalFunction {var_t fn_name_t action}
-          int_name int_argspec int_retSig int_body : assert.
+Record UInternalFunction' {var_t fn_name_t action: Type} :=
+  { uint_name : fn_name_t;
+    uint_argspec : tsig var_t;
+    uint_retSig : type;
+    uint_body : action }.
+Arguments UInternalFunction' : clear implicits.
+Arguments Build_UInternalFunction' {var_t fn_name_t action}
+          uint_name uint_argspec uint_retSig uint_body : assert.
 
-Definition map_intf_body {var_t fn_name_t action action': Type}
-           (f: action -> action') (fn: InternalFunction var_t fn_name_t action) :=
-  {| int_name := fn.(int_name);
-     int_argspec := fn.(int_argspec);
-     int_retSig := fn.(int_retSig);
-     int_body := f fn.(int_body) |}.
+Definition map_uintf_body {var_t fn_name_t action action': Type}
+           (f: action -> action') (fn: UInternalFunction' var_t fn_name_t action) :=
+  {| uint_name := fn.(uint_name);
+     uint_argspec := fn.(uint_argspec);
+     uint_retSig := fn.(uint_retSig);
+     uint_body := f fn.(uint_body) |}.
+
+Record InternalFunction' {fn_name_t action: Type} :=
+  { int_name : fn_name_t;
+    int_body : action }.
+Arguments InternalFunction' : clear implicits.
+Arguments Build_InternalFunction' {fn_name_t action}
+          int_name int_body : assert.
 
 Record arg_sig {var_t} :=
   { arg_name: var_t;

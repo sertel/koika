@@ -44,9 +44,9 @@ Section TypedSyntaxFunctions.
       | Unop fn arg1 => action_footprint' acc arg1
       | Binop fn arg1 arg2 => action_footprint' (action_footprint' acc arg1) arg2
       | ExternalCall fn arg => action_footprint' acc arg
-      | InternalCall fn args body =>
+      | InternalCall fn args =>
         let acc := cfoldr (fun _ _ arg acc => action_footprint' acc arg) args acc in
-        action_footprint' acc body
+        action_footprint' acc fn.(int_body)
       | APos _ a => action_footprint' acc a
       end.
 
@@ -255,7 +255,7 @@ Section TypedSyntaxFunctions.
       | ExternalCall fn arg =>
         let '(env, arg) := annotate_action_register_histories env arg in
         (env, ExternalCall fn arg)
-      | InternalCall fn args body =>
+      | InternalCall fn args =>
         let '(env, args) :=
             cfoldr (fun sg k arg cont =>
                       fun env =>
@@ -263,8 +263,8 @@ Section TypedSyntaxFunctions.
                         let '(env, args) := cont env in
                         (env, CtxCons k arg args)) args
                    (fun env => (env, CtxEmpty)) env in
-        let '(env, body) := annotate_action_register_histories env body in
-        (env, InternalCall fn args body)
+        let '(env, body) := annotate_action_register_histories env fn.(int_body) in
+        (env, InternalCall {| int_name := fn.(int_name); int_body := body |} args)
       | APos pos a =>
         let '(env, a) := annotate_action_register_histories env a in
         (env, APos (PosAnnot pos) a)
@@ -393,9 +393,9 @@ Section TypedSyntaxFunctions.
       | Unop fn arg1 => rule_max_log_size arg1
       | Binop fn arg1 arg2 => rule_max_log_size arg1 + rule_max_log_size arg2
       | ExternalCall fn arg => rule_max_log_size arg
-      | InternalCall fn args body =>
+      | InternalCall fn args =>
         cfoldl (fun k arg acc => acc + rule_max_log_size arg) args 0
-        + rule_max_log_size body
+        + rule_max_log_size fn.(int_body)
       | APos pos a => rule_max_log_size a
       end.
   End StaticAnalysis.
@@ -418,9 +418,9 @@ Section TypedSyntaxFunctions.
       | Unop fn a => existsb_subterm f a
       | Binop fn a1 a2 => existsb_subterm f a1 || existsb_subterm f a2
       | ExternalCall fn arg => existsb_subterm f arg
-      | InternalCall fn args body =>
+      | InternalCall fn args =>
         cfoldl (fun k arg acc => acc || existsb_subterm f arg) args false
-        || existsb_subterm f body
+        || existsb_subterm f fn.(int_body)
       | APos _ a => existsb_subterm f a
       end.
 
@@ -457,9 +457,9 @@ Section TypedSyntaxFunctions.
     | Unop fn arg1 => is_pure arg1
     | Binop fn arg1 arg2 => is_pure arg1 && is_pure arg2
     | ExternalCall fn arg => false
-    | InternalCall fn args body =>
+    | InternalCall fn args =>
       cfoldr (fun _ k arg acc => acc && is_pure arg) args true
-      && is_pure body
+      && is_pure fn.(int_body)
     | APos pos a => is_pure a
     end.
 
@@ -477,7 +477,7 @@ Section TypedSyntaxFunctions.
     | Unop fn arg1 => false
     | Binop fn arg1 arg2 => false
     | ExternalCall fn arg => false
-    | InternalCall fn args body => returns_zero body
+    | InternalCall fn args => returns_zero fn.(int_body)
     | APos pos a => returns_zero a
     end.
 
@@ -495,7 +495,7 @@ Section TypedSyntaxFunctions.
     | @Unop _ _ _ _ _ _ _ _ fn _ => Some (PrimSignatures.Sigma1 fn).(retSig)
     | @Binop _ _ _ _ _ _ _ _ fn _ _ => Some (PrimSignatures.Sigma2 fn).(retSig)
     | @ExternalCall _ _ _ _ _ _ _ _ _ _ => None
-    | @InternalCall _ _ _ _ _ _ _ _ tau _ _ _ _ => Some tau
+    | @InternalCall _ _ _ _ _ _ _ _ tau _ _ _ => Some tau
     | @APos _ _ _ _ _ _ _ _ tau _ _ => Some tau
     end.
 
@@ -521,7 +521,7 @@ Section TypedSyntaxFunctions.
       let/opt r2 := interp_arithmetic arg2 in
       Some (PrimSpecs.sigma2 fn r1 r2)
     | ExternalCall fn arg => None
-    | InternalCall fn args body => None
+    | InternalCall fn args => None
     | APos pos a => interp_arithmetic a
     end.
 
@@ -544,8 +544,8 @@ Section TypedSyntaxFunctions.
            action_size arg1 + action_size arg2
          | ExternalCall ufn arg =>
            action_size arg
-         | InternalCall fn argspec body =>
-           cfoldl (fun _ arg acc => acc + action_size arg) argspec (action_size body)
+         | InternalCall fn argspec =>
+           cfoldl (fun _ arg acc => acc + action_size arg) argspec (action_size fn.(int_body))
          | APos p e => action_size e
          | _ => 0
          end)%N.
@@ -585,9 +585,9 @@ Section TypedSyntaxFunctions.
         find_read1s_after_write1s' acc arg2
       | ExternalCall fn arg =>
         find_read1s_after_write1s' acc arg
-      | InternalCall fn args body =>
+      | InternalCall fn args =>
         let acc := cfoldr (fun _ _ arg acc => find_read1s_after_write1s' acc arg) args acc in
-        find_read1s_after_write1s' acc body
+        find_read1s_after_write1s' acc fn.(int_body)
       | APos _ a => find_read1s_after_write1s' acc a
       end.
 

@@ -143,11 +143,11 @@ let pp_external_sig ppf f =
 let pp_internal_sig_arg ppf (nm, tau) =
   fprintf ppf "@[%a@ :: %a@]" pp_quoted nm (pp_type ~wrap:false) tau
 
-let pp_internal_function ppf (f: _ internal_function) =
+let pp_uinternal_function ppf (f: _ uinternal_function) =
   fprintf ppf "{{{ %a | %a ~> %a }}}"
-    pp_quoted f.int_name
-    (pp_seq (pp_sep " ~> ") pp_internal_sig_arg) f.int_argspec
-    (pp_type ~wrap:false) f.int_retSig
+    pp_quoted f.uint_name
+    (pp_seq (pp_sep " ~> ") pp_internal_sig_arg) f.uint_argspec
+    (pp_type ~wrap:false) f.uint_retSig
 
 let pp_ext_fn_Sigma ppf (extfuns: ffi_signature list) =
   fprintf ppf "@[<hv 2>Definition Sigma (f: ext_fn_t): ExternalSignature :=@ %a@]."
@@ -318,7 +318,7 @@ let rec pp_action print_positions ppf (a: ResolvedAST.uaction locd) =
     | ExternalCall { fn; arg } ->
        pp_app "UExternalCall" "%a@ %a" pp_raw fn.lcnt.ffi_name pp_action arg
     | InternalCall { fn; args } ->
-       pp_app "UInternalCall" "%a@ %a" pp_raw fn.int_name (pp_list pp_action) args
+       pp_app "UInternalCall" "%a@ %a" pp_raw fn.uint_name (pp_list pp_action) args
     | Sugar u -> pp_app "USugar" "%a" pp_sugar u
   and pp_sugar ppf u =
     let pp_app fn fmt = pp_app ppf fn fmt in
@@ -367,13 +367,13 @@ let pp_scheduler print_positions ppf (name, scheduler) =
   fprintf ppf "@[<2>Definition %s_eval (sigma: forall f, Sigma f)@ : Log R ContextEnv :=@ " name;
   fprintf ppf "@[<2>interp_scheduler@ (ContextEnv.(create) r)@ sigma@ rules@ %s@].@]" name
 
-let pp_int_fn ~print_positions ppf (_, { int_name; int_argspec; int_retSig; int_body }) =
+let pp_int_fn ~print_positions ppf (_, { uint_name; uint_argspec; uint_retSig; uint_body }) =
   let p fmt = fprintf ppf fmt in
-  p "@[<v>@[<hv 2>Definition %s {reg_t ext_fn_t} : UInternalFunction reg_t ext_fn_t := {|@ " int_name;
-  p "int_name := %a;@ " pp_quoted int_name;
-  p "int_argspec := %a;@ " (pp_list (pp_pair pp_quoted pp_type_unwrapped)) int_argspec;
-  p "int_retSig := %a;@ " pp_type_unwrapped int_retSig;
-  p "int_body := %a;" (pp_action print_positions) int_body;
+  p "@[<v>@[<hv 2>Definition %s {reg_t ext_fn_t} : UInternalFunction reg_t ext_fn_t := {|@ " uint_name;
+  p "uint_name := %a;@ " pp_quoted uint_name;
+  p "uint_argspec := %a;@ " (pp_list (pp_pair pp_quoted pp_type_unwrapped)) uint_argspec;
+  p "uint_retSig := %a;@ " pp_type_unwrapped uint_retSig;
+  p "uint_body := %a;" (pp_action print_positions) uint_body;
   p "@]@ |}.@]"
 
 let pp_tc_rules ppf (rules: (string * _) list) =

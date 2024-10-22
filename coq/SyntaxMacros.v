@@ -146,47 +146,44 @@ Module Display.
     Context {pos_t reg_t ext_fn_t: Type}.
 
     Notation uaction := (uaction pos_t var_t fn_name_t reg_t ext_fn_t).
+    Notation intfun := (UInternalFunction pos_t var_t fn_name_t reg_t ext_fn_t).
 
     Inductive field : Type :=
     | Str (s: string)
     | Value (tau: type).
 
-    Notation intfun := (InternalFunction var_t fn_name_t uaction).
-
-    Definition empty_printer : InternalFunction var_t fn_name_t uaction :=
-      {| int_name := "print";
-         int_argspec := [];
-         int_retSig := unit_t;
-         int_body := USugar USkip |}.
+    Definition empty_printer : intfun :=
+      {| uint_name := "print";
+         uint_argspec := [];
+         uint_retSig := unit_t;
+         uint_body := USugar USkip |}.
 
     Definition display_utf8 s : uaction :=
       UUnop (UDisplay (UDisplayUtf8)) (USugar (UConstString s)).
 
-    Definition nl_printer : InternalFunction var_t fn_name_t uaction :=
-      {| int_name := "print_nl";
-         int_argspec := [];
-         int_retSig := unit_t;
-         int_body := display_utf8 "\n" |}.
+    Definition nl_printer : intfun :=
+      {| uint_name := "print_nl";
+         uint_argspec := [];
+         uint_retSig := unit_t;
+         uint_body := display_utf8 "\n" |}.
 
     Definition extend_printer f (offset: nat) (printer: intfun) : intfun :=
       let opts :=
           {| display_newline := false; display_strings := false; display_style := dFull |} in
       let display_value arg :=
           UUnop (UDisplay (UDisplayValue opts)) (UVar arg) in
-      let '(Build_InternalFunction int_name int_argspec int_retSig int_body) :=
-          printer in
       match f with
       | Str s =>
-        {| int_name := int_name;
-           int_argspec := int_argspec;
-           int_retSig := int_retSig;
-           int_body := (USeq (display_utf8 s) int_body) |}
+        {| uint_name    := printer.(uint_name);
+           uint_argspec := printer.(uint_argspec);
+           uint_retSig  := printer.(uint_retSig);
+           uint_body    := (USeq (display_utf8 s) printer.(uint_body)) |}
       | Value tau =>
         let arg := String.append "arg" (show offset) in
-        {| int_name := int_name;
-           int_argspec := (arg, tau) :: int_argspec;
-           int_retSig := unit_t;
-           int_body := (USeq (display_value arg) int_body) |}
+        {| uint_name    := printer.(uint_name);
+           uint_retSig  := unit_t;
+           uint_argspec := (arg, tau) :: printer.(uint_argspec);
+           uint_body    := (USeq (display_value arg) printer.(uint_body)) |}
       end.
 
     Fixpoint make_printer (offset: nat) (fstring: list field) : intfun :=

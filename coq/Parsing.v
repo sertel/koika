@@ -131,17 +131,11 @@ Notation "a '[' b ':+' c ']'" := (UBinop (UBits2 (UIndexedSlice c)) a b) (in cus
 Notation "'`' a '`'" := ( a) (in custom koika at level 99, a constr at level 99).
 
 Notation "'fun' nm args ':' ret '=>' body" :=
-  {| int_name := nm%string;
-     int_argspec := args;
-     int_retSig := ret;
-     int_body := body |}
-    (in custom koika at level 99, nm custom koika_var at level 0, args custom koika_types, ret constr at level 0, body custom koika at level 99, format "'[v' 'fun'  nm  args  ':'  ret  '=>' '/' body ']'").
+  (Build_UInternalFunction' nm%string args ret body)
+    (in custom koika at level 99, nm custom koika_var at level 0, args custom koika_types, ret constr at level 0, body custom koika at level 99, right associativity, format "'[v' 'fun'  nm  args  ':'  ret  '=>' '/' body ']'").
 Notation "'fun' nm '()' ':' ret '=>' body" :=
-  {| int_name := nm%string;
-     int_argspec := nil;
-     int_retSig := ret;
-     int_body := body |}
-    (in custom koika at level 99, nm custom koika_var at level 0, ret constr at level 0, body custom koika at level 99, format "'[v' 'fun'  nm  '()'   ':'  ret  '=>' '/' body ']'").
+  (Build_UInternalFunction' nm%string nil ret body)
+    (in custom koika at level 99, nm custom koika_var at level 0, ret constr at level 0, body custom koika at level 99, right associativity, format "'[v' 'fun'  nm  '()'   ':'  ret  '=>' '/' body ']'").
 
 (* Deprecated *)
 Notation "'call' instance method args" :=
@@ -268,10 +262,6 @@ Module Type Tests.
   (* Notation "'{&' a '&}'" := (a) (a custom koika_types at level 200). *)
   (* Definition test_21 := {& "yoyo" : bits_t 2 &}. *)
   (* Definition test_22 := {& "yoyo" : bits_t 2 , "yoyo" : bits_t 2  &}. *)
-  Definition test_23 : InternalFunction string string (uaction reg_t) := {{ fun test (arg1 : (bits_t 3)) (arg2 : bits_t 2) : bits_t 4 => magic }}.
-  Definition test_24 : nat -> InternalFunction string string (uaction reg_t) :=  (fun sz => {{ fun test (arg1 : bits_t sz) (arg1 : bits_t sz) : bits_t sz  => magic}}).
-  Definition test_25 : nat -> InternalFunction string string (uaction reg_t) := (fun sz => {{fun test (arg1 : bits_t sz ) : bits_t sz => let oo := magic >> magic in magic}}).
-  Definition test_26 : nat -> InternalFunction string string (uaction reg_t) := (fun sz => {{ fun test () : bits_t sz  => magic }}).
   Definition test_27 : uaction reg_t :=
     {{
         (if (!read0(data0)) then
@@ -283,6 +273,12 @@ Module Type Tests.
            read0(data0));
         fail
     }}.
+  Notation UInternalFunction :=
+    (UInternalFunction pos_t string string reg_t ext_fn_t).
+  Definition test_23 : UInternalFunction := {{ fun test (arg1 : (bits_t 3)) (arg2 : bits_t 2) : bits_t 4 => magic }}.
+  Definition test_24 : nat -> UInternalFunction :=  (fun sz => {{ fun test (arg1 : bits_t sz) (arg1 : bits_t sz) : bits_t sz  => magic}}).
+  Definition test_25 : nat -> UInternalFunction := (fun sz => {{fun test (arg1 : bits_t sz ) : bits_t sz => let oo := magic >> magic in magic}}).
+  Definition test_26 : nat -> UInternalFunction := (fun sz => {{ fun test () : bits_t sz  => magic }}).
   Definition test_28 : uaction reg_t :=  {{
                                              match var with
                                              | magic => magic
