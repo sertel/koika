@@ -380,6 +380,10 @@ Fixpoint vect_truncate_left {T sz} n (v: vect T (n + sz)) : vect T sz :=
   | S n => fun v => vect_truncate_left n (vect_tl v)
   end v.
 
+(* Push element to the tail of the vector
+ *
+ * Basically a cons at the tail (snoc is cons spelled backwards)
+ *)
 Fixpoint vect_snoc {T sz} (t: T) (v: vect T sz) : vect T (S sz) :=
   match sz return vect T sz -> vect T (S sz) with
   | O => fun v => vect_cons t vect_nil
@@ -391,6 +395,14 @@ Fixpoint vect_unsnoc {T sz} (v: vect T (S sz)) : T * vect T sz :=
   | O => fun v => (vect_hd v, vect_tl v)
   | S sz => fun v => let '(t, v') := vect_unsnoc (vect_tl v) in
                  (t, vect_cons (vect_hd v) v')
+  end v.
+
+(* reverse vector *)
+Fixpoint vect_rev {T} {sz} (v : vect T sz) : vect T sz :=
+  match sz as n return (vect T n -> vect T n) with
+  | 0 => fun _ => vect_nil
+  | S sz' => fun v' =>
+    vect_snoc (vect_hd v') (vect_rev (vect_tl v'))
   end v.
 
 Definition vect_cycle_l1 {T sz} (v: vect T sz) :=
@@ -969,6 +981,7 @@ Module Bits.
   Notation bits := (vect bool).
   Notation nil := (@vect_nil bool).
   Notation cons := (@vect_cons bool).
+  Notation snoc := (@vect_snoc bool).
   Notation const := (@vect_const bool).
   Notation app := (fun x y => @vect_app bool _ _ y x). (* !! *)
   Notation repeat := (@vect_repeat bool).
@@ -986,6 +999,7 @@ Module Bits.
   Notation ones n := (@const n true).
   Notation lsb := (@vect_hd_default bool _ false).
   Notation msb := (@vect_last_default bool _ false).
+  Notation rev := (@vect_rev bool).
 
   Fixpoint rmul n m :=
     match n with
