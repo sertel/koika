@@ -227,6 +227,14 @@ let assignment_to_string' (gensym: int ref) (assignment: assignment) =
    | EUnop (fn, arg1) ->
       (match fn with
        | Not _ -> default_left ^ "~" ^ arg1
+       | Rev sz ->
+        let rec loop n = if n = 0
+          then Printf.sprintf "%s[%d]" arg1 n
+          else Printf.sprintf "%s[%d], " arg1 n ^ loop (n - 1) in
+        let rhs = if sz = 0 || sz = 1
+            then lhs
+            else "{" ^ loop (sz-1) ^ "}" in
+        default_left ^ rhs
        | Repeat (_, times) -> default_left ^ Printf.sprintf "{%d{%s}}" times arg1
        | Slice (_, offset, slice_sz) -> default_left ^ arg1 ^ "[" ^ (string_of_int offset) ^ " +: " ^ string_of_int slice_sz ^ "]"
        | SExt _ | ZExtL _ | ZExtR _ | Lowered _ -> failwith_unlowered ())

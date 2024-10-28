@@ -228,6 +228,7 @@ and pp_prim_ubits1 ppf (f: Cuttlebone.Extr.PrimUntyped.ubits1) =
   let pp_app fmt = pp_app ppf fmt in
   match f with
   | UNot -> pp_raw "UNot"
+  | URev -> pp_raw "URev"
   | USExt width -> pp_app "USExt" "%d" width
   | UZExtL width -> pp_app "UZExtL" "%d" width
   | UZExtR width -> pp_app "UZExtR" "%d" width
