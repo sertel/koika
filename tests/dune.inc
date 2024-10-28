@@ -249,6 +249,25 @@ Extraction \"register_file_bypassing.ml\" register_file_bypassing.prog.\n")))
   (deps (package koika) register_file_bypassing.ml)
   (action (run cuttlec %{deps} -T all -o .))))
 
+(subdir reverse.v.d
+ (rule
+  (action
+   (write-file reverse_extr.v
+     "Require Coq.extraction.Extraction tests.reverse.
+Extraction \"reverse.ml\" reverse.prog.\n")))
+
+ (coq.extraction
+  (prelude reverse_extr)
+  (extracted_modules reverse)
+  (theories Ltac2 Koika tests)
+  (flags "-w" "-overriding-logical-loadpath"))
+
+ (rule
+  (target reverse.v)
+  (alias runtest)
+  (deps (package koika) reverse.ml)
+  (action (run cuttlec %{deps} -T all -o .))))
+
 (subdir shadowing.lv.d
  (rule
   (target shadowing.v)
