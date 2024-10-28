@@ -296,7 +296,7 @@ module Verilog : RTLBackend = struct
     | EName _ | EConst _ -> -1
     | EPtr _ -> -2
     | EUnop (Slice _, _) | EBinop ((Sel _ | IndexedSlice _), _, _) -> -3
-    | EUnop (Not _, _) -> -4
+    | EUnop (Not _, _) | EUnop (Rev _, _) -> -4
     | EBinop (Concat _, _, _) -> -5
     | EUnop (Repeat _, _) -> -6
     | EBinop (Mul _, _, _) -> -7
@@ -388,6 +388,14 @@ module Verilog : RTLBackend = struct
     | EUnop (f, e) ->
        (match f with
         | Not _ -> sp "~%a" p e
+        | Rev sz ->
+          let rec loop n = if n = 0
+            then sprintf "%a[%d]" p e n
+            else sprintf "%a[%d], " p e n ^ loop (n - 1) in
+          let rhs = if sz = 0 || sz = 1
+              then sprintf "%a" p e (* is that legal for a bits 0 vector? *)
+              else "{" ^ loop (sz-1) ^ "}" in
+          (lvl, rhs)
         | Repeat (_, times) -> sp "{%d{%a}}" times p0 e
         | Slice (_, offset, slice_sz) -> sp "%a[%d +: %d]" pr e offset slice_sz
         | SExt _ | ZExtL _ | ZExtR _ | Lowered _ -> unlowered ())

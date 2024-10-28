@@ -295,6 +295,7 @@ module Util = struct
     let open Extr.PrimTyped in
     function
     | Not _ -> "not"
+    | Rev _ -> "rev"
     | SExt (_, _) -> "sext"
     | ZExtL (_, _) -> "zextl"
     | ZExtR (_, _) -> "zextr"

@@ -100,6 +100,7 @@ Notation "'when' a 'do' t " := (UIf a t (USugar (UConstBits Ob))) (in custom koi
 
 Notation "a '&&' b" :=  (UBinop (UBits2 UAnd) a b) (in custom koika at level 80,  right associativity, format "a  '&&'  b").
 Notation "'!' a" := (UUnop (UBits1 UNot) a) (in custom koika at level 75, format "'!' a").
+Notation "'><' a" := (UUnop (UBits1 URev) a) (in custom koika at level 75, format "'><' a").
 Notation "a '||' b" :=  (UBinop (UBits2 UOr) a b) (in custom koika at level 85, format "a  '||'  b").
 Notation "'zeroExtend(' a ',' b ')'" :=  (UUnop (UBits1 (UZExtL b)) a) (in custom koika, b constr at level 0, format "'zeroExtend(' a ',' b ')'").
 Notation "'sext(' a ',' b ')'" :=  (UUnop (UBits1 (USExt b)) a) (in custom koika, b constr at level 0, format "'sext(' a ',' b ')'").
