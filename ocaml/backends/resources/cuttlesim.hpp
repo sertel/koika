@@ -686,6 +686,11 @@ namespace prims {
     return bits<maxsz>::of_shifted_sbits((widen<maxsz>(x) << nbits).to_shifted_sbits() >> nbits);
   }
 
+  template<bitwidth sz>
+  bits<sz> rev(const bits<sz> x) {
+    return std::reverse(std::begin(x.v), std::end(x.v));
+  }
+
   template<bitwidth width, bitwidth sz>
   bits<std::max(sz, width)> zextl(const bits<sz> x) {
     return widen<std::max(sz, width)>(x);

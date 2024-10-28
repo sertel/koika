@@ -113,6 +113,7 @@ Section CircuitCompilation.
                         circuit (retSig (CSigma1 fn)) ->
                         circuit (retSig (CSigma1 fn)) with
         | Not _ => fun a c => c
+        | Rev _ => fun a c => c
         | Repeat _ _ => fun a c => c
         | SExt sz width => fun a c =>
           ltac:(subst cRet; simpl; rewrite <- vect_extend_end_cast, <- (mul_1_r (width - sz));

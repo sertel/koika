@@ -42,5 +42,6 @@ End Circuit.
 Notation CAnd := (CBinop (And _)).
 Notation COr := (CBinop (Or _)).
 Notation CNot := (CUnop (Not _)).
+Notation CRev := (CUnop (Rev _)).
 
 Arguments circuit {rule_name_t reg_t ext_fn_t rwdata} CR CSigma sz : assert.

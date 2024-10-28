@@ -268,6 +268,7 @@ let cpp_ext_funcall f (kind: [`Function | `Method]) a =
 let cpp_bits1_fn_name (f: Extr.PrimTyped.fbits1) =
   match f with
   | Not _ -> "~"
+  | Rev width -> sprintf "prims::rev<%d>" width
   | SExt (_sz, width) -> sprintf "prims::sext<%d>" width
   | ZExtL (_sz, width) -> sprintf "prims::zextl<%d>" width
   | ZExtR (_sz, width) -> sprintf "prims::zextr<%d>" width
