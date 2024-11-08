@@ -158,6 +158,8 @@ Notation "'if' a 'then' t"          := (If a t                                  
 Notation "'if' a 'then' t 'else' f" := (If a t                                  f         ) (in custom koika_t at level 86, t custom koika_t at level 86, a custom koika_t at level 200, right associativity, format "'[v' 'if'  a '/' 'then'  t '/' 'else'  f ']'").
 Notation "'guard' '(' a ')' "       := (If (Unop (Bits1 Not) a) (Fail (unit_t)) (Const Ob)) (in custom koika_t at level 86, right associativity, format "'guard' '(' a ')'").
 Notation "'when' a 'do' t "         := (If a t                                  (Const Ob)) (in custom koika_t at level 91, right associativity, format "'[v' 'when'  a '/' 'do'  t '/' ']'").
+Notation "'assert' a 'in' c"          := (If a c                                  (Fail _)  ) (in custom koika_t at level 200, right associativity, format "'[v' 'assert'  a '/' 'in'  c ']'").
+Notation "'assert' a 'else' b 'in' c" := (If a c                                  b         ) (in custom koika_t at level 200, right associativity, format "'[v' 'assert'  a '/' 'else'  b '/' 'in'  c ']'").
 
 Notation "'zeroExtend(' a ',' b ')'" := (Unop (Bits1 (ZExtL _ b)) a) (in custom koika_t at level 1, b constr at level 0, format "'zeroExtend(' a ',' b ')'").
 Notation "'sext(' a ',' b ')'"       := (Unop (Bits1 (SExt  _ b)) a) (in custom koika_t at level 1, b constr at level 0, format "'sext(' a ',' b ')'").
