@@ -52,7 +52,7 @@ Notation " '(' x ':' y ')'" := (cons (prod_of_argsig {| arg_name := x%string; ar
 Notation "a  b" := (app a b)  (in custom koika_types at level 95, a custom koika_types , b custom koika_types, right associativity).
 
 (* Koika_branches *)
-Notation "x '=>' a " := (cons (x,a) nil) (in custom koika_branches at level 60, x custom koika at level 99, a custom koika at level 89).
+Notation "x '=>' a " := (cons (x,a) nil) (in custom koika_branches at level 60, x custom koika at level 99, a custom koika at level 99).
 Notation "arg1 '|' arg2" := (app arg1 arg2) (in custom koika_branches at level 13, arg1 custom koika_branches, arg2 custom koika_branches, format "'[v' arg1 ']' '/' '|'  '[v' arg2 ']'").
 
 (* Koika *)
@@ -206,11 +206,11 @@ Notation "'enum' enum_type '{' f '}'" :=
     (in custom koika at level 1, enum_type constr at level 1, f custom koika_var at level 1).
 
 Notation "'match' var 'with' '|' branches 'return' 'default' ':' default 'end'" :=
-  (UBind "__reserved__matchPattern" var (USugar (USwitch (UVar "__reserved__matchPattern") default branches)))
+  (USugar (USwitch var default branches))
     (in custom koika at level 30,
         var custom koika,
         branches custom koika_branches,
-        default custom koika ,
+        default custom koika at level 99,
         format "'match'  var  'with' '/' '[v'  '|'  branches '/' 'return'  'default' ':' default ']' 'end'").
 
 Notation "'#' s" := (USugar (UConstBits s)) (in custom koika at level 98, s constr at level 0, only parsing).
