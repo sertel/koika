@@ -519,4 +519,6 @@ Definition ContextEnv {K} {FT: FiniteType K}: Env K.
   - intros; apply cassoc_creplace_neq_k; eassumption.
 Defined.
 
-Notation "env .[ idx ]" := (getenv ContextEnv env idx) (at level 1, format "env .[ idx ]").
+Notation "env .[ idx ]" := (ContextEnv.(getenv) env idx) (at level 1, format "env .[ idx ]").
+Notation "env '.N[' idx ']'" := (Bits.to_N (ContextEnv.(getenv) env idx)) (at level 1, format "env .N[ idx ]").
+Notation "env '.nat[' idx ']'" := (Bits.to_nat (ContextEnv.(getenv) env idx)) (at level 1, format "env .nat[ idx ]").
