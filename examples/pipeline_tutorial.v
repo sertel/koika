@@ -282,10 +282,6 @@ With this definition, ``sigma F: bits_t 32 → bits_t 32`` is the model of `f`, 
   Arguments may_write /.
   Opaque CompactSemantics.interp_cycle.
 
-  (* FIXME remove these notations *)
-  Notation "0b0" := {| vhd := false; vtl := _vect_nil |}.
-  Notation "0b1" := {| vhd := true; vtl := _vect_nil |}.
-
   Import StreamNotations.
 
 (*|

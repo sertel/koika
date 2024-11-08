@@ -2,7 +2,7 @@ Require Import Koika.Frontend.
 Require Import Coq.Program.Equality.
 
 (* This dependently-typed function is required for the type of the context. *)
-Definition input { sig : list (string * type) } := context ( fun (x : (string * type)) => type_denote (snd x) ) sig.
+Definition input { sig : list (string * type) } := context ( fun x => type_denote (snd x) ) sig.
 
 (**
  * # run_function'
