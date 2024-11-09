@@ -270,15 +270,15 @@ Fixpoint lift_reg
 
 
 Notation "fn args" :=
-  (InternalCall (tau := fn.(int_retSig)) (argspec := rev fn.(int_argspec)) fn.(int_name) args fn.(int_body))
+  (InternalCall (tau := fn.(int_retSig)) (argspec := fn.(int_argspec)) fn.(int_name) args fn.(int_body))
     (in custom koika_t at level 1, fn constr at level 0 , args custom koika_t_args at level 99, only parsing).
 
 Notation "instance  '.(' fn ')' args" :=
-  (InternalCall (tau := fn.(int_retSig)) (argspec := rev fn.(int_argspec)) fn.(int_name) args (lift_reg (exist _ instance (fun _ => eq_refl)) fn.(int_body)))
+  (InternalCall (tau := fn.(int_retSig)) (argspec := fn.(int_argspec)) fn.(int_name) args (lift_reg (exist _ instance (fun _ => eq_refl)) fn.(int_body)))
     (in custom koika_t at level 1, instance constr at level 0, fn constr, args custom koika_t_args at level 99).
 
 Notation "'{' fn '}' args" :=
-  (InternalCall (tau := fn.(int_retSig)) (argspec := rev fn.(int_argspec)) fn.(int_name) args fn.(int_body))
+  (InternalCall (tau := fn.(int_retSig)) (argspec := fn.(int_argspec)) fn.(int_name) args fn.(int_body))
     (in custom koika_t at level 1, fn constr at level 200 , args custom koika_t_args at level 99, only parsing).
 
 Notation "'extcall' method '(' arg ')'" := (ExternalCall method arg) (in custom koika_t at level 98, method constr at level 0, arg custom koika_t).

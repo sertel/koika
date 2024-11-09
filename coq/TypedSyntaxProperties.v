@@ -74,7 +74,7 @@ Section TypedSyntaxProperties.
       generalize dependent Gamma.
       generalize dependent sched_log.
       generalize dependent action_log.
-      generalize dependent (rev argspec); clear argspec.
+      generalize dependent (argspec).
       fix IHargs 2; destruct args; cbn; intros;
         repeat dec_step. }
 
