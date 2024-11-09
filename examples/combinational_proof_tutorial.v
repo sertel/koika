@@ -47,8 +47,8 @@ We chose a relatively low-level model: an alternative would have been to phrase 
 We can check that this model behaves as expected:
 |*)
 
-Compute Bits.to_nat (model quadruple (Bits.of_nat sz 7)). (* .unfold *)
-Compute model rotate_half Ob~1~1~1~1~0~0~0~0~1~0~1~0~1~0~1~0. (* .unfold *)
+(* Compute Bits.to_nat (model quadruple (Bits.of_nat sz 7)). (* .unfold *) *)
+(* Compute model rotate_half Ob~1~1~1~1~0~0~0~0~1~0~1~0~1~0~1~0. (* .unfold *) *)
 
 (*|
 Combinational implementation
@@ -107,8 +107,8 @@ To prove the correctness of our design, we first need to phrase a correctness pr
     | rotate_half => vect_hd (vect_tl ops.(enum_bitpatterns))
     end.
 
-  Compute encode_operation quadruple. (* .unfold *)
-  Compute encode_operation rotate_half. (* .unfold *)
+  (* Compute encode_operation quadruple. (* .unfold *) *)
+  (* Compute encode_operation rotate_half. (* .unfold *) *)
 
 (*|
 This is all that's needed to state a theorem.  We'll use Coq's “section” mechanism to parameterize the theorem about all the stateful parts of Kôika's semantics:
@@ -140,8 +140,8 @@ For readability, let's define an abbreviation of the `interp_action` function.
       | None => None
       end.
 
-    Compute Bits.to_nat (must (design_result Ob~0~0~0~0~0~1~1~0 (Bits.of_nat sz 7))). (* .unfold *)
-    Compute must (design_result Ob~0~0~0~1~0~0~0~1 Ob~1~1~1~1~0~0~0~0~1~0~1~0~1~0~1~0) : bits_t _. (* .unfold *)
+    (* Compute Bits.to_nat (must (design_result Ob~0~0~0~0~0~1~1~0 (Bits.of_nat sz 7))). *) (* .unfold *)
+    (* Compute must (design_result Ob~0~0~0~1~0~0~0~1 Ob~1~1~1~1~0~0~0~0~1~0~1~0~1~0~1~0) : bits_t _. *) (* .unfold *)
 
 (*|
 All good.  Now for the theorem:
