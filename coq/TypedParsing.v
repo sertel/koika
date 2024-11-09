@@ -124,7 +124,8 @@ Notation "'when' a 'do' t "           := (If a t (Const Ob)) (in custom koika_t 
 
 Notation "'let' a ':=' b 'in' c" := (Bind a b c) (in custom koika_t at level 200, a custom koika_t_var, right associativity, format "'[v' 'let'  a  ':='  b  'in' '/' c ']'").
 
-Notation "a ';' b" := (Seq a b) (in custom koika_t at level 90, b at level 200, format "'[v' a ';' '/' b ']'" ).
+Notation "a ';' b" := (Seq a                          b) (in custom koika_t at level 90, b at level 200, format "'[v' a ';' '/' b ']'" ).
+Notation "a ';'"   := (Seq a (Const (tau := unit_t) Ob)) (in custom koika_t at level 90). (* trailing comma *)
 
 Notation "'set' a ':=' b" := (Assign (_: VarRef a _) b) (in custom koika_t at level 89, a custom koika_t_var, format "'set'  a  ':='  b").
 
@@ -453,8 +454,8 @@ Module Type Tests2.
   Definition test_1' : _action := <{ let yoyo := fail(2) in yoyo }>.
   Definition test_2' : _action := <{ pass; pass }>.
   Definition test_3' : _action := <{ let yoyo := pass in set yoyo := pass ; pass }>.
-  Fail Definition test_3'' : _action := <{ set yoyo := pass ; pass }>.
-  Fail Definition test_5 : _action := <{ let yoyo := set yoyo := pass in pass }>.
+  Fail Definition test_3'' : _action := <{ set yoyo := pass ; pass; }>.
+  Fail Definition test_5 : _action := <{ let yoyo := set yoyo := pass in pass; }>.
   Inductive test := rData (n:nat).
   Definition test_R (r : test) := bits_t 5.
   Definition test_9 : _action := <{ read0(data0) }>.
@@ -477,7 +478,7 @@ Module Type Tests2.
   Definition test_24 (sz : nat) : function R Sigma := <{ fun test (arg1 : bits_t sz) (arg1 : bits_t sz) : bits_t sz  => fail(sz)}>.
   Definition test_25 (sz : nat) : function R Sigma := <{fun test (arg1 : bits_t sz ) : bits_t sz => let oo := fail(sz) >> fail(sz) in oo}>.
   Definition test_26 (sz : nat) : function R Sigma := <{ fun test () : bits_t sz  => fail(sz) }>.
-  Definition test_write : _action := <{ write0(data0, 0b"01101") }>.
+  Definition test_write : _action := <{ write0(data0, 0b"01101"); }>.
 
   #[program ]Definition idk : _action (tau := bits_t 3) := <{
     (!read0(data0))[Ob~1~1~1 :+ 3]

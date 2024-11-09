@@ -64,7 +64,8 @@ Notation "'when' a 'do' t "           := (UIf a t (USugar (UConstBits Ob))) (in 
 
 Notation "'let' a ':=' b 'in' c" := (UBind a b c) (in custom koika at level 200, a custom koika_var, right associativity, format "'[v' 'let'  a  ':='  b  'in' '/' c ']'").
 
-Notation "a ';' b" := (USeq a b) (in custom koika at level 90, b at level 200, format "'[v' a ';' '/' b ']'" ).
+Notation "a ';' b" := (USeq a                        b) (in custom koika at level 90, b at level 200, format "'[v' a ';' '/' b ']'" ).
+Notation "a ';'"   := (USeq a (USugar (UConstBits Ob))) (in custom koika at level 90). (* trailing comma *)
 
 Notation "'set' a ':=' b" := (UAssign a b) (in custom koika at level 89, a custom koika_var, format "'set'  a  ':='  b").
 
@@ -328,7 +329,7 @@ Module Type Tests.
   Definition test_10 : nat -> uaction test := (fun idx => {{ read0(rData idx) }}).
   Definition test_11 : uaction reg_t := {{ (let yoyo := read0(data0) in write0(data0, magic)); fail }}.
   Definition test_12 : uaction reg_t := {{ (let yoyo := if fail then read0(data0) else fail in write0(data0,magic));fail }}.
-  Definition test_13 : uaction reg_t := {{ yoyo }}.
+  Definition test_13 : uaction reg_t := {{ yoyo; pass; }}.
   Definition test_14 : uaction reg_t := {{ !yoyo && yoyo }}.
   Definition test_14' : uaction reg_t := {{ !(yoyo && yoyo) }}.
   Goal test_14 <> test_14'. compute; congruence. Qed.
@@ -339,7 +340,7 @@ Module Type Tests.
   Definition test_19 : uaction reg_t := {{ yoy [ oio && ab ] && Ob~1~0 }}.
   Definition test_20 : uaction reg_t := {{ yoyo [ magic :+ 3 ] && yoyo }}.
   Definition test_20' : uaction reg_t := {{ (yoyo [ magic :+ 3]  ++ yoyo) && yoyo }}.
-  Definition test_20'' : uaction reg_t := {{ ( yoyo [ magic :+ 3 ] ++ yoyo ++bla) && yoyo }}.
+  Definition test_20'' : uaction reg_t := {{ ( yoyo [ magic :+ 3 ] ++ yoyo ++bla) && yoyo; }}.
 
   Definition test_27 : uaction reg_t := {{
     if !read0(data0) then
