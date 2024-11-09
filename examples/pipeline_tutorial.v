@@ -139,7 +139,7 @@ In the first step of execution ``doG`` does not execute and ``doF`` reads 1 from
 The function ``interp_cycle`` computes this update: it returns a map of register values.
 |*)
 
-Compute (interp_cycle σ rules pipeline r). (* .unfold *)
+(* Compute (interp_cycle σ rules pipeline r). (* .unfold *) *)
 
 (*|
 Here is an infinite stream capturing the initial state of the system and all snapshots of the system after each execution:
@@ -155,31 +155,31 @@ Forcing this infinite stream simulates the whole system directly inside Coq: for
   ..
 |*)
 
-Compute (Streams.firstn 5
+(* Compute (Streams.firstn 5
            (Streams.map (fun r => r.[input_buffer])
-                        system_states)). (* .unfold *)
-Compute (Streams.firstn 5
+                        system_states)). (* .unfold *) *)
+(* Compute (Streams.firstn 5
            (Streams.map (fun r => @Bits.to_nat 32 r.[input_buffer])
-                        system_states)). (* .unfold *)
+                        system_states)). (* .unfold *) *)
 
 (*|
 - Outputs (``1 * 5 + 1 = 6``; ``3 * 5 + 1 = 16``; ``5 * 5 + 1 = 26``; ``…``); the first two zeros correspond pipeline's initial lag (the first 0 is the initial state; the second, the result of running one cycle; after that, the output is updated at every cycle):
   ..
 |*)
 
-Compute (Streams.firstn 5
+(* Compute (Streams.firstn 5
            (Streams.map (fun r => r.[output_buffer])
-                        system_states)). (* .unfold *)
-Compute (Streams.firstn 5
+                        system_states)). (* .unfold *) *)
+(* Compute (Streams.firstn 5
            (Streams.map (fun r => @Bits.to_nat 32 r.[output_buffer])
-                        system_states)). (* .unfold *)
+                        system_states)). (* .unfold *) *)
 
 (*|
 Simulating this way is convenient for exploring small bits of code; for large designs, we have a compiler that generates optimized (but readable!) C++ that simulates Kôika designs 4 to 5 orders of magnitude faster than running directly in Coq does (a small example like this one runs hundreds of millions of simulated cycles per second in C++, and thousands in Coq):
 |*)
 
-Time Compute (@Bits.to_nat 32
-             (Streams.Str_nth 1000 system_states).[output_buffer]). (* .unfold *)
+(* Time Compute (@Bits.to_nat 32
+             (Streams.Str_nth 1000 system_states).[output_buffer]). (* .unfold *) *)
 
 (*|
 Running individual rules
@@ -191,29 +191,29 @@ We can also simulate at finer granularity: for example, here is what happens for
   ..
 |*)
 
-Compute (interp_rule r σ log_empty (rules doG)). (* .unfold *)
+(* Compute (interp_rule r σ log_empty (rules doG)). (* .unfold *) *)
 
 (*|
 - ``doF`` succeeds and updates the queue and the input buffer:
   ..
 |*)
 
-Compute (interp_rule r σ log_empty (rules doF)). (* .unfold *)
+(* Compute (interp_rule r σ log_empty (rules doF)). (* .unfold *) *)
 
 (*|
 In later cycles (here, cycle 3), ``doG`` succeeds as well and writes 1 to (port 0 of) ``queue_empty``…
 |*)
 
-Compute (let r := Streams.Str_nth 3 system_states in
-         interp_rule r σ log_empty (rules doG)). (* .unfold *)
+(* Compute (let r := Streams.Str_nth 3 system_states in
+         interp_rule r σ log_empty (rules doG)). (* .unfold *) *)
 
 (*|
 … and ``doF`` sets (port 1 of) ``queue_empty`` back to 0 as it refills the queue:
 |*)
 
-Compute (let r := Streams.Str_nth 3 system_states in
+(* Compute (let r := Streams.Str_nth 3 system_states in
          let logG := interp_rule r σ log_empty (rules doG) in
-         interp_rule r σ (must logG) (rules doF)). (* .unfold *)
+         interp_rule r σ (must logG) (rules doF)). (* .unfold *) *)
 
 (*|
 Generating circuits
@@ -235,7 +235,7 @@ For printing circuits, we don't recommend using Coq's ``Compute``: our represent
 We can, however, easily compute the results produced by a circuit, either after one cycle:
 |*)
 
-Compute (interp_circuits σ circuits (lower_r r)). (* .unfold *)
+(* Compute (interp_circuits σ circuits (lower_r r)). (* .unfold *) *)
 
 (*|
 … or after multiple cycles:
@@ -244,12 +244,12 @@ Compute (interp_circuits σ circuits (lower_r r)). (* .unfold *)
 Definition circuit_states :=
   Streams.coiterate (interp_circuits σ circuits) (lower_r r).
 
-Compute (Streams.firstn 5
+(* Compute (Streams.firstn 5
            (Streams.map (fun r => r.[output_buffer])
-                        circuit_states)). (* .unfold *)
-Compute (Streams.firstn 5
+                        circuit_states)). (* .unfold *) *)
+(* Compute (Streams.firstn 5
            (Streams.map (fun r => @Bits.to_nat 32 r.[output_buffer])
-                        circuit_states)). (* .unfold *)
+                        circuit_states)). (* .unfold *) *)
 
 (*|
 Proving properties
