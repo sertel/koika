@@ -30,6 +30,9 @@ Notation "bs '~' '1'" := (Bits.cons true bs) (in custom koika_consts at level 7,
 Notation "'Ob' '~' number" :=
   (USugar (UConstBits number))
     (in custom koika at level 7, number custom koika_consts at level 99, format "'Ob' '~' number").
+Notation "'Ob'" :=
+  (USugar (UConstBits Bits.nil))
+    (in custom koika at level 7).
 
 Notation "'|' a '`d' b '|'" :=
   (USugar (UConstBits (Bits.of_N (a<:nat) b%N)))

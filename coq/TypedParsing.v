@@ -57,6 +57,10 @@ Notation "'Ob' '~' number" :=
   (Const (tau := bits_t _) number)
     (in custom koika_t at level 7, number custom koika_t_consts at level 99, format "'Ob' '~' number").
 
+Notation "'Ob'" :=
+  (Const (tau := bits_t 0) Bits.nil)
+    (in custom koika_t at level 7).
+
 (* koika bit vector literals *)
 Require BinaryString OctalString HexString HexadecimalString DecimalString.
 
