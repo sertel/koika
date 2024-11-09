@@ -149,7 +149,7 @@ Section TypeInference.
         let/res args_ctx := assert_argtypes e fn.(uint_name) pos (List.rev fn.(uint_argspec)) (List.rev tc_args_w_pos) in
 
         let/res fn_body' := type_action (actpos pos fn.(uint_body)) (List.rev fn.(uint_argspec)) fn.(uint_body) in
-        let/res fn_body' := cast_action (actpos pos fn.(uint_body)) fn.(uint_retSig) (``fn_body') in
+        let/res fn_body' := cast_action (actpos pos fn.(uint_body)) fn.(uint_retType) (``fn_body') in
 
         Success (EX (TypedSyntax.InternalCall {|
           int_name := fn.(uint_name);

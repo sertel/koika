@@ -213,7 +213,7 @@ Notation tc_rule R Sigma ua :=
   (tc_action R Sigma (@List.nil (var_t * type)) unit_t ua) (only parsing).
 
 Notation tc_function R Sigma uf :=
-  (tc_action R Sigma (uint_argspec uf) (uint_retSig uf) (uint_body uf)) (only parsing).
+  (tc_action R Sigma (uint_argspec uf) (uint_retType uf) (uint_body uf)) (only parsing).
 
 Ltac _arg_type R :=
   match type of R with

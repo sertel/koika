@@ -1606,7 +1606,7 @@ let resolve_fn_decl types fns { ufn_name; ufn_signature; ufn_rettype; ufn_body }
    | InternalUfn body ->
       let body = resolve_action types fns [] body in
       InternalDecl { uint_name = ufn_name.lcnt;
-                     uint_retSig = rettype;
+                     uint_retType = rettype;
                      uint_argspec = args;
                      uint_body = body }
    | ExternalUfn ->

@@ -95,13 +95,13 @@ module Util = struct
   let extr_uintfun_of_uintfun fbody (fsig: _ Common.uinternal_function) =
     { Extr.uint_name = fsig.uint_name;
       Extr.uint_argspec = List.map (fun (nm, tau) -> nm, extr_type_of_typ tau) fsig.uint_argspec;
-      Extr.uint_retSig = extr_type_of_typ fsig.uint_retSig;
+      Extr.uint_retType = extr_type_of_typ fsig.uint_retType;
       Extr.uint_body = fbody fsig.uint_body }
 
   let uintfun_of_extr_uintfun fbody (fsig: _ Extr.uInternalFunction') =
     { uint_name = fsig.uint_name;
       uint_argspec = List.map (fun (nm, tau) -> nm, typ_of_extr_type tau) fsig.uint_argspec;
-      uint_retSig = typ_of_extr_type fsig.uint_retSig;
+      uint_retType = typ_of_extr_type fsig.uint_retType;
       uint_body = fbody fsig.uint_body }
 
   let extr_type_to_string tau =

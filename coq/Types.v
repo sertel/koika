@@ -292,17 +292,17 @@ Definition lsig := list nat.
 Record UInternalFunction' {var_t fn_name_t action: Type} :=
   { uint_name : fn_name_t;
     uint_argspec : tsig var_t;
-    uint_retSig : type;
+    uint_retType : type;
     uint_body : action }.
 Arguments UInternalFunction' : clear implicits.
 Arguments Build_UInternalFunction' {var_t fn_name_t action}
-          uint_name uint_argspec uint_retSig uint_body : assert.
+          uint_name uint_argspec uint_retType uint_body : assert.
 
 Definition map_uintf_body {var_t fn_name_t action action': Type}
            (f: action -> action') (fn: UInternalFunction' var_t fn_name_t action) :=
   {| uint_name := fn.(uint_name);
      uint_argspec := fn.(uint_argspec);
-     uint_retSig := fn.(uint_retSig);
+     uint_retType := fn.(uint_retType);
      uint_body := f fn.(uint_body) |}.
 
 Record InternalFunction' {fn_name_t action: Type} :=

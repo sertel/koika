@@ -1117,7 +1117,7 @@ them before writing to the registers.\n"
       let package_intfun fn argspec tau =
         { Extr.uint_name = hpp.cpp_fn_names fn.Extr.int_name;
           Extr.uint_argspec = argspec;
-          Extr.uint_retSig = tau;
+          Extr.uint_retType = tau;
           Extr.uint_body = fn.Extr.int_body } in
 
       (* Table mapping function objects to unique names.  This is reset for each
@@ -1354,7 +1354,7 @@ them before writing to the registers.\n"
         let sp_arg (nm, tau) =
           let tau = Cuttlebone.Util.typ_of_extr_type tau in
           sprintf "%s %s" (cpp_type_of_type tau) (hpp.cpp_var_names nm) in
-        let ret_tau = Cuttlebone.Util.typ_of_extr_type intf.Extr.uint_retSig in
+        let ret_tau = Cuttlebone.Util.typ_of_extr_type intf.Extr.uint_retType in
         let ret_type = cpp_type_of_type ret_tau in
         let ret_arg = sprintf "%s %s" ret_type "&_ret" in
         let args = String.concat ", " @@ name :: ret_arg :: List.map sp_arg intf.Extr.uint_argspec in

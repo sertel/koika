@@ -155,7 +155,7 @@ Module Display.
     Definition empty_printer : intfun :=
       {| uint_name := "print";
          uint_argspec := [];
-         uint_retSig := unit_t;
+         uint_retType := unit_t;
          uint_body := USugar USkip |}.
 
     Definition display_utf8 s : uaction :=
@@ -164,7 +164,7 @@ Module Display.
     Definition nl_printer : intfun :=
       {| uint_name := "print_nl";
          uint_argspec := [];
-         uint_retSig := unit_t;
+         uint_retType := unit_t;
          uint_body := display_utf8 "\n" |}.
 
     Definition extend_printer f (offset: nat) (printer: intfun) : intfun :=
@@ -176,13 +176,13 @@ Module Display.
       | Str s =>
         {| uint_name    := printer.(uint_name);
            uint_argspec := printer.(uint_argspec);
-           uint_retSig  := printer.(uint_retSig);
+           uint_retType  := printer.(uint_retType);
            uint_body    := (USeq (display_utf8 s) printer.(uint_body)) |}
       | Value tau =>
         let arg := String.append "arg" (show offset) in
         {| uint_name    := printer.(uint_name);
-           uint_retSig  := unit_t;
            uint_argspec := (arg, tau) :: printer.(uint_argspec);
+           uint_retType  := unit_t;
            uint_body    := (USeq (display_value arg) printer.(uint_body)) |}
       end.
 

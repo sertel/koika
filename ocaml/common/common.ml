@@ -253,7 +253,7 @@ let locd_of_pair (pos, x) =
 type 'action uinternal_function = {
     uint_name: string;
     uint_argspec: (string * typ) list;
-    uint_retSig: typ;
+    uint_retType: typ;
     uint_body: 'action
   }
 
