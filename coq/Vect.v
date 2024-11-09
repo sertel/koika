@@ -947,13 +947,14 @@ Section pow2.
 End pow2.
 
 Module VectNotations.
-  Declare Scope vect.
-  Delimit Scope vect with vect.
-  Notation "[ ]" := (vect_nil) (format "[ ]") : vect.
-  Notation "h :: t" := (vect_cons h t) (at level 60, right associativity) : vect.
-  Notation "[ x ]" := (vect_cons x vect_nil) : vect.
-  Notation "[ x ; y ; .. ; z ]" := (vect_cons x (vect_cons y .. (vect_cons z vect_nil) ..)) : vect.
-  Infix "++" := vect_app : vect.
+  Declare Scope vect_scope.
+  Delimit Scope vect_scope with vect.
+  Notation "[ ]" := (vect_nil) (format "[ ]") : vect_scope.
+  Notation "h :: t" := (vect_cons h t) (at level 60, right associativity) : vect_scope.
+  Notation "[ x ]" := (vect_cons x vect_nil) : vect_scope.
+  Notation "[ x ; y ; .. ; z ]" := (vect_cons x (vect_cons y .. (vect_cons z vect_nil) ..)) : vect_scope.
+  Infix "++" := vect_app : vect_scope.
+  Bind Scope vect_scope with vect.
 End VectNotations.
 
 Export VectNotations.
