@@ -45,21 +45,21 @@ Definition function
     Types.InternalFunction' fn_name_t
       (TypedSyntax.action pos_t var_t fn_name_t R Sigma sig tau).
 
-Notation "'<{' e '}>'" := (e) (e custom koika_t at level 200).
+Notation "'<{' e '}>'" := (e) (e custom koika_t).
 
 (* Koika_consts *)
 Notation "'1'" := (Ob~1) (in custom koika_t_consts at level 0).
 Notation "'0'" := (Ob~0) (in custom koika_t_consts at level 0).
-Notation "bs '~' '0'" := (Bits.cons false bs) (in custom koika_t_consts at level 7, left associativity, format "bs '~' '0'").
-Notation "bs '~' '1'" := (Bits.cons  true bs) (in custom koika_t_consts at level 7, left associativity, format "bs '~' '1'").
+Notation "bs '~' '0'" := (Bits.cons false bs) (in custom koika_t_consts at level 1, left associativity, format "bs '~' '0'").
+Notation "bs '~' '1'" := (Bits.cons  true bs) (in custom koika_t_consts at level 1, left associativity, format "bs '~' '1'").
 
 Notation "'Ob' '~' number" :=
   (Const (tau := bits_t _) number)
-    (in custom koika_t at level 7, number custom koika_t_consts at level 99, format "'Ob' '~' number").
+    (in custom koika_t at level 0, number custom koika_t_consts, format "'Ob' '~' number").
 
 Notation "'Ob'" :=
   (Const (tau := bits_t 0) Bits.nil)
-    (in custom koika_t at level 7).
+    (in custom koika_t at level 0).
 
 (* koika bit vector literals *)
 Require BinaryString OctalString HexString HexadecimalString DecimalString.
@@ -118,23 +118,23 @@ Notation "'0x' num"    := (Bits.of_N _                      (hex_string_to_N num
 Notation "a '`d' b" := (Bits.of_N (a<:nat) b%N) (in custom koika_t_literal at level 1, a constr at level 0 , b constr at level 0).
 
 (* literal inside koika - wrapped inside Const to function as a uaction *)
-Notation "'|' literal '|'" := (Const (tau := bits_t _) literal) (in custom koika_t at level 1, literal custom koika_t_literal at level 200).
+Notation "'|' literal '|'" := (Const (tau := bits_t _) literal) (in custom koika_t at level 1, literal custom koika_t_literal).
 (* literal inside constr (normal Coq) - directly usable as [bits n] *)
-Notation "'|' literal '|'" := (literal) (at level 10, literal custom koika_t_literal at level 200).
+Notation "'|' literal '|'" := (literal) (at level 10, literal custom koika_t_literal).
 
 (* Koika_var *)
-Notation "a" := (ident_to_string a) (in custom koika_t_var at level 0, a constr at level 0, only parsing).
-Notation "a" := (a) (in custom koika_t_var at level 0, a constr at level 0, format "'[' a ']'", only printing).
+Notation "a" := (ident_to_string a) (in custom koika_t_var at level 0, a ident, only parsing).
+Notation "a" := (a) (in custom koika_t_var at level 0, a ident, format "'[' a ']'", only printing).
 
-Notation "'fail'"            := (Fail     unit_t) (in custom koika_t at level 1, format "'fail'").
-Notation "'fail' '(' t ')'"  := (Fail (bits_t t)) (in custom koika_t at level 1, t constr at level 0, format "'fail' '(' t ')'").
-Notation "'fail' '@(' t ')'" := (Fail          t) (in custom koika_t at level 1, t constr at level 0 ,format "'fail' '@(' t ')'").
+Notation "'fail'"            := (Fail     unit_t) (in custom koika_t, format "'fail'").
+Notation "'fail' '(' t ')'"  := (Fail (bits_t t)) (in custom koika_t, t constr, format "'fail' '(' t ')'").
+Notation "'fail' '@(' t ')'" := (Fail          t) (in custom koika_t, t constr, format "'fail' '@(' t ')'").
 
 (* TODO should work without tau .. right? *)
-Notation "'pass'"  := (Const (tau := unit_t) Ob) (in custom koika_t at level 1).
+Notation "'pass'"  := (Const (tau := unit_t) Ob) (in custom koika_t).
 (* the magic axiom can be used as value for an arbitrary type, use it with care *)
 Require Magic.
-Notation "'magic'" := (Magic.__magic__) (in custom koika_t at level 1).
+Notation "'magic'" := (Magic.__magic__) (in custom koika_t).
 
 (* TODO better error messages *)
 Class VarRef {K1 K2 k2} k1 sig := vr_m : @member (K1 * K2) (k1,k2) sig.
@@ -144,46 +144,50 @@ Hint Extern 1 (VarRef ?k1 ?sig) => exact (projT2 (must (assoc k1 sig))) : typecl
   to enable the parser to decide after parsing a depending on '.('
 
   Without this dependency a could also be a 'koika_t_var' *)
-Notation "a" := (Var (_: VarRef (ident_to_string a) _)) (in custom koika_t at level 1, a constr at level 0).
-Notation "a" := (Var a) (in custom koika_t at level 1, a constr at level 0, only printing).
+Notation "a" := (Var (_: VarRef (ident_to_string a) _)) (in custom koika_t at level 0, a constr at level 0, only parsing).
+Notation "a" := (Var a) (in custom koika_t at level 0, a constr at level 0, only printing).
 
-Notation "'let' a ':=' b 'in' c" := (Bind a b c) (in custom koika_t at level 91, a custom koika_t_var at level 1, right associativity, format "'[v' 'let'  a  ':='  b  'in' '/' c ']'").
+Notation "'let' a ':=' b 'in' c" := (Bind a b c) (in custom koika_t at level 200, a custom koika_t_var, right associativity, format "'[v' 'let'  a  ':='  b  'in' '/' c ']'").
 
-Notation "a ';' b" := (Seq a b) (in custom koika_t at level 90, format "'[v' a ';' '/' b ']'" ).
-Notation "'set' a ':=' b" := (Assign (_: VarRef a _) b) (in custom koika_t at level 89, a custom koika_t_var at level 1, format "'set'  a  ':='  b").
-Notation "'(' a ')'" := (a) (in custom koika_t at level 1, a custom koika_t, format "'[v' '(' a ')' ']'").
+Notation "a ';' b" := (Seq a b) (in custom koika_t at level 90, b at level 200, format "'[v' a ';' '/' b ']'" ).
+Notation "'set' a ':=' b" := (Assign (_: VarRef a _) b) (in custom koika_t at level 89, a custom koika_t_var, format "'set'  a  ':='  b").
+Notation "'(' a ')'" := (a) (in custom koika_t, format "'[v' '(' a ')' ']'").
 
-Notation "'read0' '(' reg ')' "           := (Read P0 reg)        (in custom koika_t at level 1, reg constr at level 13, format "'read0' '(' reg ')'").
-Notation "'read1' '(' reg ')' "           := (Read P1 reg)        (in custom koika_t at level 1, reg constr at level 13, format "'read1' '(' reg ')'").
-Notation "'write0' '(' reg ',' value ')'" := (Write P0 reg value) (in custom koika_t at level 1, reg constr at level 13, format "'write0' '(' reg ',' value ')'").
-Notation "'write1' '(' reg ',' value ')'" := (Write P1 reg value) (in custom koika_t at level 1, reg constr at level 13, format "'write1' '(' reg ',' value ')'").
+Notation "'read0' '(' reg ')' "           := (Read P0 reg)        (in custom koika_t, reg constr, format "'read0' '(' reg ')'").
+Notation "'read1' '(' reg ')' "           := (Read P1 reg)        (in custom koika_t, reg constr, format "'read1' '(' reg ')'").
+Notation "'write0' '(' reg ',' value ')'" := (Write P0 reg value) (in custom koika_t, reg constr, format "'write0' '(' reg ',' value ')'").
+Notation "'write1' '(' reg ',' value ')'" := (Write P1 reg value) (in custom koika_t, reg constr, format "'write1' '(' reg ',' value ')'").
 
-Notation "'if' a 'then' t"          := (If a t                                  (Const (tau := unit_t) Ob)) (in custom koika_t at level 86, t custom koika_t at level 86, a custom koika_t at level 200, right associativity, format "'[v' 'if'  a '/' 'then'  t ']'").
-Notation "'if' a 'then' t 'else' f" := (If a t                                  f         ) (in custom koika_t at level 86, t custom koika_t at level 86, a custom koika_t at level 200, right associativity, format "'[v' 'if'  a '/' 'then'  t '/' 'else'  f ']'").
-Notation "'guard' '(' a ')' "       := (If (Unop (Bits1 Not) a) (Fail (unit_t)) (Const Ob)) (in custom koika_t at level 86, right associativity, format "'guard' '(' a ')'").
-Notation "'when' a 'do' t "         := (If a t                                  (Const Ob)) (in custom koika_t at level 91, right associativity, format "'[v' 'when'  a '/' 'do'  t '/' ']'").
+Notation "'if' a 'then' t"          := (If a t                                  (Const (tau := unit_t) Ob)) (in custom koika_t at level 89, t custom koika_t at level 89, right associativity, format "'[v' 'if'  a '/' 'then'  t ']'").
+Notation "'if' a 'then' t 'else' f" := (If a t                                  f         ) (in custom koika_t at level 89, t custom koika_t at level 89, right associativity, format "'[v' 'if'  a '/' 'then'  t '/' 'else'  f ']'").
+Notation "'guard' '(' a ')' "       := (If (Unop (Bits1 Not) a) (Fail (unit_t)) (Const Ob)) (in custom koika_t at level 89, right associativity, format "'guard' '(' a ')'").
+Notation "'when' a 'do' t "         := (If a t                                  (Const Ob)) (in custom koika_t at level 200, right associativity, format "'[v' 'when'  a '/' 'do'  t '/' ']'").
 Notation "'assert' a 'in' c"          := (If a c                                  (Fail _)  ) (in custom koika_t at level 200, right associativity, format "'[v' 'assert'  a '/' 'in'  c ']'").
 Notation "'assert' a 'else' b 'in' c" := (If a c                                  b         ) (in custom koika_t at level 200, right associativity, format "'[v' 'assert'  a '/' 'else'  b '/' 'in'  c ']'").
 
-Notation "'zeroExtend(' a ',' b ')'" := (Unop (Bits1 (ZExtL _ b)) a) (in custom koika_t at level 1, b constr at level 0, format "'zeroExtend(' a ',' b ')'").
-Notation "'sext(' a ',' b ')'"       := (Unop (Bits1 (SExt  _ b)) a) (in custom koika_t at level 1, b constr at level 0, format "'sext(' a ',' b ')'").
+Notation "'zeroExtend(' a ',' b ')'" := (Unop (Bits1 (ZExtL _ b)) a) (in custom koika_t, b constr, format "'zeroExtend(' a ',' b ')'").
+Notation "'sext(' a ',' b ')'"       := (Unop (Bits1 (SExt  _ b)) a) (in custom koika_t, b constr, format "'sext(' a ',' b ')'").
 
-Notation "'ignore(' a ')'"           := (Unop (Conv _ Ignore)     a) (in custom koika_t at level 1, a custom koika_t).
-Notation "'pack(' a ')'"             := (Unop (Conv _ Pack)       a) (in custom koika_t at level 1, a custom koika_t).
-Notation "'unpack(' t ',' v ')'"     := (Unop (Conv t Unpack)     v) (in custom koika_t at level 1, t constr at level 11, v custom koika_t).
+Notation "'ignore(' a ')'"           := (Unop (Conv _ Ignore)     a) (in custom koika_t).
+Notation "'pack(' a ')'"             := (Unop (Conv _ Pack)       a) (in custom koika_t).
+Notation "'unpack(' t ',' v ')'"     := (Unop (Conv t Unpack)     v) (in custom koika_t, t constr).
 
+(* Inspired by cpp the precedence  *)
+(* https://en.cppreference.com/w/cpp/language/operator_precedence *)
+(* TODO id really prefer to use || and && for logical operations and & | for bitwise *)
+(* Bit operations *)
 Notation "a  '||'  b"         := (Binop (Bits2 (Or       _))          a b) (in custom koika_t at level 85).
-Notation "a  '^'  b"          := (Binop (Bits2 (Xor      _))          a b) (in custom koika_t at level 85).
-Notation "a  '+'  b"          := (Binop (Bits2 (Plus     _))          a b) (in custom koika_t at level 85).
-Notation "a  '-'  b"          := (Binop (Bits2 (Minus    _))          a b) (in custom koika_t at level 85).
-Notation "a  '*'  b"          := (Binop (Bits2 (Mul    _ _))          a b) (in custom koika_t at level 84).
-Notation "a  '++'  b"         := (Binop (Bits2 (Concat _ _))          a b) (in custom koika_t at level 80,  right associativity).
-Notation "a  '&&'  b"         := (Binop (Bits2 (And      _))          a b) (in custom koika_t at level 80,  right associativity).
-Notation "a  '!='  b"         := (Binop (Eq _ true)                   a b) (in custom koika_t at level 79).
-Notation "a  '=='  b"         := (Binop (Eq _ false)                  a b) (in custom koika_t at level 79).
-Notation "a  '>>'  b"         := (Binop (Bits2 (Lsr _ _))             a b) (in custom koika_t at level 79).
-Notation "a  '>>>'  b"        := (Binop (Bits2 (Asr _ _))             a b) (in custom koika_t at level 79).
-Notation "a  '<<'  b"         := (Binop (Bits2 (Lsl _ _))             a b) (in custom koika_t at level 79).
+Notation "a  '^'  b"          := (Binop (Bits2 (Xor      _))          a b) (in custom koika_t at level 84).
+Notation "a  '+'  b"          := (Binop (Bits2 (Plus     _))          a b) (in custom koika_t at level 70).
+Notation "a  '-'  b"          := (Binop (Bits2 (Minus    _))          a b) (in custom koika_t at level 70).
+Notation "a  '*'  b"          := (Binop (Bits2 (Mul    _ _))          a b) (in custom koika_t at level 69).
+Notation "a  '++'  b"         := (Binop (Bits2 (Concat _ _))          a b) (in custom koika_t at level 75).
+Notation "a  '&&'  b"         := (Binop (Bits2 (And      _))          a b) (in custom koika_t at level 83).
+Notation "a  '!='  b"         := (Binop (Eq _ true)                   a b) (in custom koika_t at level 80).
+Notation "a  '=='  b"         := (Binop (Eq _ false)                  a b) (in custom koika_t at level 80).
+Notation "a  '>>'  b"         := (Binop (Bits2 (Lsr _ _))             a b) (in custom koika_t at level 74).
+Notation "a  '>>>'  b"        := (Binop (Bits2 (Asr _ _))             a b) (in custom koika_t at level 74).
+Notation "a  '<<'  b"         := (Binop (Bits2 (Lsl _ _))             a b) (in custom koika_t at level 74).
 Notation "a  '<'  b"          := (Binop (Bits2 (Compare false cLt _)) a b) (in custom koika_t at level 79).
 Notation "a  '<s'  b"         := (Binop (Bits2 (Compare true  cLt _)) a b) (in custom koika_t at level 79).
 Notation "a  '<='  b"         := (Binop (Bits2 (Compare false cLe _)) a b) (in custom koika_t at level 79).
@@ -192,18 +196,17 @@ Notation "a  '>'  b"          := (Binop (Bits2 (Compare false cGt _)) a b) (in c
 Notation "a  '>s'  b"         := (Binop (Bits2 (Compare true  cGt _)) a b) (in custom koika_t at level 79).
 Notation "a  '>='  b"         := (Binop (Bits2 (Compare false cGe _)) a b) (in custom koika_t at level 79).
 Notation "a  '>s='  b"        := (Binop (Bits2 (Compare true  cGe _)) a b) (in custom koika_t at level 79).
-Notation "'!' a"              := (Unop  (Bits1 (Not _))               a  ) (in custom koika_t at level 75, format "'!' a").
-Notation "a '[' b ']'"        := (Binop (Bits2 (Sel _))               a b) (in custom koika_t at level 75, format "'[' a [ b ] ']'").
-Notation "a '[' b ':+' c ']'" := (Binop (Bits2 (IndexedSlice _ c))    a b) (in custom koika_t at level 75, c constr at level 0, format "'[' a [ b ':+' c ] ']'").
-Notation "'`' a '`'" := (a) (in custom koika_t at level 99, a constr at level 99).
+Notation "'!' a"              := (Unop  (Bits1 (Not _))               a  ) (in custom koika_t at level 65, format "'!' a").
+Notation "a '[' b ']'"        := (Binop (Bits2 (Sel _))               a b) (in custom koika_t at level 60, format "'[' a [ b ] ']'").
+Notation "a '[' b ':+' c ']'" := (Binop (Bits2 (IndexedSlice _ c))    a b) (in custom koika_t at level 60, c constr at level 0, format "'[' a [ b ':+' c ] ']'").
+Notation "'`' a '`'" := (a) (in custom koika_t, a constr).
 
 
 (* Koika_types *)
 (* TODO improve arg list to be more consistent on nil case  *)
 Declare Custom Entry koika_t_types.
-Declare Custom Entry koika_t_types_binder.
-Notation "'(' x ':' y ')'" := (x%string, (y : type)) (in custom koika_t_types_binder at level 60, x custom koika_t_var at level 0, y constr at level 12 ).
-Notation "a  ..  b" := (cons a ..  (cons b nil) ..)  (in custom koika_t_types at level 95, a custom koika_t_types_binder , b custom koika_t_types_binder, right associativity).
+Notation "'(' x ':' y ')'" := (x%string, (y : type)) (in custom koika_t_types at level 0, x custom koika_t_var, y constr).
+Notation "a  ..  b" := (cons a ..  (cons b nil) ..)  (in custom koika_t_types at level 1, a custom koika_t_types at next level, b custom koika_t_types at next level).
 
 (* We want to tell the typechecker that the body of the function
  * should have the function's arguments in its context (sig).
@@ -227,13 +230,13 @@ Arguments refine_sig_tau sig tau {reg_t ext_fn_t} {R Sigma} & a : assert.
 
 Notation "'fun' nm args ':' ret '=>' body" :=
   (Build_InternalFunction' nm%string (refine_sig_tau args ret body))
-    (in custom koika_t at level 99, nm custom koika_t_var at level 0, args custom koika_t_types, ret constr at level 0, body custom koika_t at level 99, format "'[v' 'fun'  nm  args  ':'  ret  '=>' '/' body ']'").
+    (in custom koika_t at level 200, nm custom koika_t_var, args custom koika_t_types, ret constr at level 0, right associativity, format "'[v' 'fun'  nm  args  ':'  ret  '=>' '/' body ']'").
 Notation "'fun' nm '()' ':' ret '=>' body" :=
   (Build_InternalFunction' nm%string (refine_sig_tau nil ret body))
-    (in custom koika_t at level 99, nm custom koika_t_var at level 0, ret constr at level 0, body custom koika_t at level 99, format "'[v' 'fun'  nm  '()'   ':'  ret  '=>' '/' body ']'").
+    (in custom koika_t at level 200, nm custom koika_t_var, ret constr at level 0, right associativity, format "'[v' 'fun'  nm  '()'   ':'  ret  '=>' '/' body ']'").
 
 (* Koika_args *)
-Notation "'(' x ',' .. ',' y ')'" := (CtxCons (_,_) (x) .. (CtxCons (_,_) (y) CtxEmpty) ..) (in custom koika_t_args, x custom koika_t at level 99, y custom koika_t at level 99).
+Notation "'(' x ',' .. ',' y ')'" := (CtxCons (_,_) (x) .. (CtxCons (_,_) (y) CtxEmpty) ..) (in custom koika_t_args, x custom koika_t, y custom koika_t).
 Notation "'(' ')'" := (CtxEmpty) (in custom koika_t_args).
 Notation "'()'"    := (CtxEmpty) (in custom koika_t_args).
 
@@ -292,31 +295,31 @@ Fixpoint lift_reg
 
 Notation "fn args" :=
   (InternalCall fn args)
-    (in custom koika_t at level 1, fn constr at level 0 , args custom koika_t_args at level 99, only parsing).
+    (in custom koika_t at level 0, fn constr at level 0 , args custom koika_t_args, only parsing).
 
 Notation "instance  '.(' fn ')' args" :=
   (InternalCall {|
     int_name := fn.(int_name);
     int_body := (lift_reg (exist _ instance (fun _ => eq_refl)) fn.(int_body))
     |} args)
-    (in custom koika_t at level 1, instance constr at level 0, fn constr, args custom koika_t_args at level 99).
+    (in custom koika_t at level 0, instance constr at level 0, fn constr, args custom koika_t_args).
 
 Notation "'{' fn '}' args" :=
   (InternalCall fn args)
-    (in custom koika_t at level 1, fn constr at level 200 , args custom koika_t_args at level 99, only parsing).
+    (in custom koika_t at level 0, fn constr, args custom koika_t_args, only parsing).
 
-Notation "'extcall' method '(' arg ')'" := (ExternalCall method arg) (in custom koika_t at level 98, method constr at level 0, arg custom koika_t).
+Notation "'extcall' method '(' arg ')'" := (ExternalCall method arg) (in custom koika_t, method constr at level 0).
 
-Notation "'get' '(' v ',' f ')'"                    := (Unop  (Struct1 GetField _      (PrimTypeInference.find_field _ f))  v  ) (in custom koika_t at level 1,                       v custom koika_t at level 13,                             f custom koika_t_var at level 0, format "'get' '(' v ','  f ')'").
-Notation "'getbits' '(' t ',' v ',' f ')'"          := (Unop  (Bits1 (GetFieldBits t   (PrimTypeInference.find_field t f))) v  ) (in custom koika_t at level 1, t constr at level 11, v custom koika_t at level 13,                             f custom koika_t_var at level 0, format "'getbits' '(' t ','  v ','  f ')'").
-Notation "'subst' '(' v ',' f ',' a ')'"            := (Binop (Struct2 SubstField _    (PrimTypeInference.find_field _ f))  v a) (in custom koika_t at level 1,                       v custom koika_t at level 13, a custom koika_t at level 13, f custom koika_t_var at level 0, format "'subst' '(' v ','  f ',' a ')'").
-Notation "'substbits' '(' t ',' v ',' f ',' a ')'"  := (Binop (Bits2 (SubstFieldBits t (PrimTypeInference.find_field t f))) v a) (in custom koika_t at level 1, t constr at level 11, v custom koika_t at level 13, a custom koika_t at level 13, f custom koika_t_var at level 0, format "'substbits' '(' t ','  v ','  f ',' a ')'").
+Notation "'get' '(' v ',' f ')'"                    := (Unop  (Struct1 GetField _      (PrimTypeInference.find_field _ f))  v  ) (in custom koika_t,           f custom koika_t_var, format "'get' '(' v ','  f ')'").
+Notation "'getbits' '(' t ',' v ',' f ')'"          := (Unop  (Bits1 (GetFieldBits t   (PrimTypeInference.find_field t f))) v  ) (in custom koika_t, t constr, f custom koika_t_var, format "'getbits' '(' t ','  v ','  f ')'").
+Notation "'subst' '(' v ',' f ',' a ')'"            := (Binop (Struct2 SubstField _    (PrimTypeInference.find_field _ f))  v a) (in custom koika_t,           f custom koika_t_var, format "'subst' '(' v ','  f ',' a ')'").
+Notation "'substbits' '(' t ',' v ',' f ',' a ')'"  := (Binop (Bits2 (SubstFieldBits t (PrimTypeInference.find_field t f))) v a) (in custom koika_t, t constr, f custom koika_t_var, format "'substbits' '(' t ','  v ','  f ',' a ')'").
 
 (* TODO evaluate what this array feature should do and how far it is implemented *)
-(* Notation "'aref' '(' v ',' f ')'"                   := (Unop  (Array1  (UGetElement         f)) v)   (in custom koika_t at level 1,                       v custom koika_t at level 13,                             f constr at level 0,           format "'aref' '(' v ','  f ')'").
-Notation "'arefbits' '(' t ',' v ',' f ')'"         := (Unop  (Array1  (UGetElementBits   t f)) v)   (in custom koika_t at level 1, t constr at level 11, v custom koika_t at level 13,                             f constr at level 0,           format "'arefbits' '(' t ','  v ','  f ')'").
-Notation "'asubst' '(' v ',' f ',' a ')'"           := (Binop (Array2  (USubstElement       f)) v a) (in custom koika_t at level 1,                       v custom koika_t at level 13, a custom koika_t at level 13, f constr at level 0,           format "'asubst' '(' v ','  f ',' a ')'").
-Notation "'asubstbits' '(' t ',' v ',' f ',' a ')'" := (Binop (Array2  (USubstElementBits t f)) v a) (in custom koika_t at level 1, t constr at level 11, v custom koika_t at level 13, a custom koika_t at level 13, f constr at level 0,           format "'asubstbits' '(' t ','  v ','  f ',' a ')'").  *)
+Notation "'aref' '(' v ',' f ')'"                   := (Unop  (Array1  (GetElement         f)) v)   (in custom koika_t,           f constr, format "'aref' '(' v ','  f ')'").
+Notation "'arefbits' '(' t ',' v ',' f ')'"         := (Unop  (Array1  (GetElementBits   t f)) v)   (in custom koika_t, t constr, f constr, format "'arefbits' '(' t ','  v ','  f ')'").
+Notation "'asubst' '(' v ',' f ',' a ')'"           := (Binop (Array2  (SubstElement       f)) v a) (in custom koika_t,           f constr, format "'asubst' '(' v ','  f ',' a ')'").
+Notation "'asubstbits' '(' t ',' v ',' f ',' a ')'" := (Binop (Array2  (SubstElementBits t f)) v a) (in custom koika_t, t constr, f constr, format "'asubstbits' '(' t ','  v ','  f ',' a ')'"). 
 
 
 Section Macro.
@@ -371,21 +374,21 @@ Declare Custom Entry koika_t_struct_init.
 (* struct instantiation in koika *)
 (* why only level 88? - probably needs to be below sequence *)
 Notation "f ':=' expr" := (_ : FieldSubst _ f expr)
-  (in custom koika_t_struct_field at level 0, f custom koika_t_var at level 0, expr custom koika_t at level 88).
+  (in custom koika_t_struct_field at level 0, f custom koika_t_var, expr custom koika_t at level 89).
 Notation "a ';' b" := (cons a b)
-  (in custom koika_t_struct_init at level 1, a custom koika_t_struct_field, b custom koika_t_struct_init at level 1).
+  (in custom koika_t_struct_init at level 0, a custom koika_t_struct_field, right associativity).
 Notation "a" := (cons a nil)
-  (in custom koika_t_struct_init at level 1, a custom koika_t_struct_field).
+  (in custom koika_t_struct_init at level 0, a custom koika_t_struct_field).
 (* trailing comma *)
 Notation "a ';'" := (cons a nil)
-  (in custom koika_t_struct_init at level 1, a custom koika_t_struct_field).
+  (in custom koika_t_struct_init at level 0, a custom koika_t_struct_field).
 
 
 Notation "'struct' sig '{' '}'" :=
-  (struct_init sig []) (in custom koika_t at level 1, sig constr at level 0).
+  (struct_init sig []) (in custom koika_t, sig constr at level 0).
 
 Notation "'struct' sig '{' fields '}'" :=
-  (struct_init sig fields) (in custom koika_t at level 1, sig constr at level 0,
+  (struct_init sig fields) (in custom koika_t, sig constr at level 0,
   fields custom koika_t_struct_init).
 
 (* create struct literals in constr (normal Coq) *)
@@ -402,53 +405,50 @@ Declare Custom Entry koika_t_struct_init_constr.
 Declare Custom Entry koika_t_struct_field_constr.
 
 Notation "f ':=' expr" := (pair f expr)
-  (in custom koika_t_struct_field_constr at level 0, f custom koika_t_var at level 0, expr constr at level 10).
+  (in custom koika_t_struct_field_constr at level 0, f custom koika_t_var, expr constr at level 10).
 Notation "a ';' b" := (cons a b)
-  (in custom koika_t_struct_init_constr at level 1, a custom koika_t_struct_field_constr, b custom koika_t_struct_init_constr at level 1).
+  (in custom koika_t_struct_init_constr at level 0, a custom koika_t_struct_field_constr, right associativity).
 Notation "a" := (cons a nil)
-  (in custom koika_t_struct_init_constr at level 1, a custom koika_t_struct_field_constr).
+  (in custom koika_t_struct_init_constr at level 0, a custom koika_t_struct_field_constr).
 (* trailing comma *)
 Notation "a ';'" := (cons a nil)
-  (in custom koika_t_struct_init_constr at level 1, a custom koika_t_struct_field_constr).
+  (in custom koika_t_struct_init_constr at level 0, a custom koika_t_struct_field_constr).
 
 Notation "'struct' structtype '<' '>'" :=
-  (value_of_bits Bits.zero : (struct_t structtype)) (at level 0, structtype constr at level 0).
+  (value_of_bits Bits.zero : (struct_t structtype)) (structtype constr at level 0).
 Notation "'struct' structtype '<' fields '>'" :=
-  (ltac:(let e := struct_init_from_list structtype fields in exact e) : (struct_t structtype)) (at level 0, structtype constr at level 0, fields custom koika_t_struct_init_constr at level 200, only parsing).
+  (ltac:(let e := struct_init_from_list structtype fields in exact e) : (struct_t structtype)) (structtype constr at level 0, fields custom koika_t_struct_init_constr).
 
 (* TODO i would like to use different paratesis here *)
 Notation "'enum' sig '{' f '}'" :=
   (Const (tau := enum_t sig) (vect_nth sig.(enum_bitpatterns) (must (vect_index f sig.(enum_members)))))
-    (in custom koika_t at level 1, sig constr at level 1, f custom koika_t_var at level 1).
+    (in custom koika_t, sig constr at level 0, f custom koika_t_var).
 
 (* creating enums literal in constr (normal Coq) *)
 Notation "'enum' sig '<' f '>'" :=
   ((vect_nth sig.(enum_bitpatterns)) (must (vect_index f sig.(enum_members))))
-    (at level 0, sig constr at level 1, f custom koika_t_var at level 1).
+    (sig constr at level 0, f custom koika_t_var).
 
 (* Koika_branches *)
 Declare Custom Entry koika_t_branches.
-Notation "x '=>' a "     := [(x,a)] (in custom koika_t_branches at level 60, x custom koika_t at level 99, a custom koika_t at level 99).
-Notation "arg1 '|' arg2" := (arg1 ++ arg2) (in custom koika_t_branches at level 13, arg1 custom koika_t_branches, arg2 custom koika_t_branches, format "'[v' arg1 ']' '/' '|'  '[v' arg2 ']'").
+Notation "x '=>' a "     := [(x,a)] (in custom koika_t_branches at level 0, x custom koika_t at level 200, a custom koika_t at level 200).
+Notation "arg1 '|' arg2" := (arg1 ++ arg2) (in custom koika_t_branches at level 1, format "'[v' arg1 ']' '/' '|'  '[v' arg2 ']'").
 
 Notation "'match' var 'with' '|' branches 'return' 'default' ':' default 'end'" :=
   (macro_switch var default branches)
-    (in custom koika_t at level 30,
-        var custom koika_t,
-        branches custom koika_t_branches,
-        default custom koika_t at level 99,
+    (in custom koika_t, branches custom koika_t_branches,
         format "'match'  var  'with' '/' '[v'  '|'  branches '/' 'return'  'default' ':' default ']' 'end'").
 
 (* TODO does this really has to be `bits_t _` *)
 (* TODO add support for enum and struct constants *)
-Notation "'#' s" := (Const (tau := bits_t _) s) (in custom koika_t at level 98, s constr at level 0, only parsing).
+Notation "'#' s" := (Const (tau := bits_t _) s) (in custom koika_t at level 0, s constr at level 0, only parsing).
 
 (* scheduler *)
 Notation "r '|>' s" :=
   (Syntax.Cons r s)
-    (at level 99, s at level 99, right associativity).
+    (at level 60, right associativity).
 Notation "'done'" :=
-  Syntax.Done (at level 99).
+  Syntax.Done.
 
 Module Type Tests.
   Parameter pos_t : Type.

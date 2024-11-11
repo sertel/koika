@@ -24,103 +24,100 @@ Notation "'0'" :=
   (Ob~0)
     (in custom koika_consts at level 0).
 
-Notation "bs '~' '0'" := (Bits.cons false bs) (in custom koika_consts at level 7, left associativity, format "bs '~' '0'").
-Notation "bs '~' '1'" := (Bits.cons true bs) (in custom koika_consts at level 7, left associativity, format "bs '~' '1'").
+Notation "bs '~' '0'" := (Bits.cons false bs) (in custom koika_consts at level 1, left associativity, format "bs '~' '0'").
+Notation "bs '~' '1'" := (Bits.cons true bs) (in custom koika_consts at level 1, left associativity, format "bs '~' '1'").
 
 Notation "'Ob' '~' number" :=
   (USugar (UConstBits number))
-    (in custom koika at level 7, number custom koika_consts at level 99, format "'Ob' '~' number").
+    (in custom koika at level 0, number custom koika_consts, format "'Ob' '~' number").
 Notation "'Ob'" :=
   (USugar (UConstBits Bits.nil))
-    (in custom koika at level 7).
+    (in custom koika at level 0).
 
 Notation "'|' a '`d' b '|'" :=
   (USugar (UConstBits (Bits.of_N (a<:nat) b%N)))
     (in custom koika, a constr at level 0 , b constr at level 0).
 
 (* Koika_args *)
-Declare Custom Entry koika_middle_args.
-Notation "x" := [x] (in custom koika_middle_args at level 0, x custom koika at level 99).
-Notation "x ',' y" := (app x y) (in custom koika_middle_args at level 1, x custom koika_middle_args, y custom koika_middle_args, right associativity).
+Notation "'(' x ',' .. ',' y ')'" := (cons x .. (cons y nil) ..) (in custom koika_args, x custom koika, y custom koika).
+Notation "'(' ')'" := (nil) (in custom koika_args).
+Notation "'()'"    := (nil) (in custom koika_args).
 
-Notation "'()'"  := nil (in custom koika_args).
-(* Notation "'( )'"  := nil (in custom koika_args). *)
-Notation "'(' x ')'"  := x (in custom koika_args, x custom koika_middle_args).
 (* Koika_var *)
-Notation "a" := (ident_to_string a) (in custom koika_var at level 0, a constr at level 0, only parsing).
-Notation "a" := (a) (in custom koika_var at level 0, a constr at level 0, format "'[' a ']'", only printing).
+Notation "a" := (ident_to_string a) (in custom koika_var at level 0, a ident, only parsing).
+Notation "a" := (a) (in custom koika_var at level 0, a ident, format "'[' a ']'", only printing).
 
 (* Koika_types *)
-Notation " '(' x ':' y ')'" := (cons (prod_of_argsig {| arg_name := x%string; arg_type := y |}) nil) (in custom koika_types at level 60, x custom koika_var at level 0, y constr at level 12 ).
-Notation "a  b" := (app a b)  (in custom koika_types at level 95, a custom koika_types , b custom koika_types, right associativity).
+Notation "'(' x ':' y ')'" := (x%string, y) (in custom koika_types at level 0, x custom koika_var, y constr).
+Notation "a .. b" := (cons a .. (cons b nil) ..) (in custom koika_types at level 1, a custom koika_types at next level, b custom koika_types at next level).
 
 (* Koika_branches *)
-Notation "x '=>' a " := (cons (x,a) nil) (in custom koika_branches at level 60, x custom koika at level 99, a custom koika at level 99).
-Notation "arg1 '|' arg2" := (app arg1 arg2) (in custom koika_branches at level 13, arg1 custom koika_branches, arg2 custom koika_branches, format "'[v' arg1 ']' '/' '|'  '[v' arg2 ']'").
+Notation "x '=>' a " := [(x,a)] (in custom koika_branches at level 0, x custom koika at level 200, a custom koika at level 200).
+Notation "arg1 '|' arg2" := (app arg1 arg2) (in custom koika_branches at level 1, format "'[v' arg1 ']' '/' '|'  '[v' arg2 ']'").
 
 (* Koika *)
-Notation "'{{' e '}}'" := (e) (e custom koika at level 200, format "'{{' '[v' '/' e '/' ']' '}}'").
+Notation "'{{' e '}}'" := (e) (e custom koika, format "'{{' '[v' '/' e '/' ']' '}}'").
 
 Notation "'fail'" :=
-  (UFail (bits_t 0)) (in custom koika at level 1, format "'fail'").
+  (UFail (bits_t 0)) (in custom koika, format "'fail'").
 Notation "'fail' '(' t ')'" :=
-  (UFail (bits_t t)) (in custom koika at level 1, t constr at level 0, format "'fail' '(' t ')'").
+  (UFail (bits_t t)) (in custom koika, t constr, format "'fail' '(' t ')'").
 Notation "'fail' '@(' t ')'" :=
-  (UFail t)          (in custom koika at level 1, t constr at level 0 ,format "'fail' '@(' t ')'").
+  (UFail t)          (in custom koika, t constr, format "'fail' '@(' t ')'").
 Notation "'pass'" := (USugar (UConstBits Ob)) (in custom koika).
 Notation "'magic'" := (USugar UErrorInAst) (in custom koika).
 
-Notation "'let' a ':=' b 'in' c" := (UBind a b c) (in custom koika at level 91, a custom koika_var at level 1, right associativity, format "'[v' 'let'  a  ':='  b  'in' '/' c ']'").
-Notation "a ';' b" := (USeq a b) (in custom koika at level 90, format "'[v' a ';' '/' b ']'" ).
-Notation "'set' a ':=' b" := (UAssign a b) (in custom koika at level 89, a custom koika_var at level 1, format "'set'  a  ':='  b").
-Notation "'(' a ')'" := (a) (in custom koika at level 1, a custom koika, format "'[v' '(' a ')' ']'").
+Notation "'let' a ':=' b 'in' c" := (UBind a b c) (in custom koika at level 200, a custom koika_var, right associativity, format "'[v' 'let'  a  ':='  b  'in' '/' c ']'").
+Notation "a ';' b" := (USeq a b) (in custom koika at level 90, b at level 200, format "'[v' a ';' '/' b ']'" ).
+Notation "'set' a ':=' b" := (UAssign a b) (in custom koika at level 89, a custom koika_var, format "'set'  a  ':='  b").
+Notation "'(' a ')'" := (a) (in custom koika, format "'[v' '(' a ')' ']'").
 
 Notation "instance  '.(' method ')' args" :=
   (USugar (UCallModule instance _ method args))
-    (in custom koika at level 0, instance constr at level 0, method constr, args custom koika_args at level 99).
+    (in custom koika at level 0, instance constr at level 0, method constr, args custom koika_args).
 Notation "'{' method '}' args" :=
   (USugar (UCallModule id _ method args))
-    (in custom koika at level 1, method constr at level 200 , args custom koika_args at level 99, only parsing).
+    (in custom koika at level 0, method constr, args custom koika_args, only parsing).
 Notation "method args" :=
   (USugar (UCallModule id _ method args))
-    (in custom koika at level 0, method constr at level 0 , args custom koika_args at level 99, only parsing).
+    (in custom koika at level 0, method constr at level 0 , args custom koika_args, only parsing).
 
 Notation "a" := (UVar (ident_to_string a)) (in custom koika at level 0, a constr at level 0, only parsing).
 Notation "a" := (UVar a) (in custom koika at level 0, a constr at level 0, only printing).
 
-Notation "'read0' '(' reg ')' " := (URead P0 reg) (in custom koika at level 1, reg constr, format "'read0' '(' reg ')'").
-Notation "'read1' '(' reg ')' " := (URead P1 reg) (in custom koika at level 1, reg constr, format "'read1' '(' reg ')'").
+Notation "'read0' '(' reg ')' " := (URead P0 reg) (in custom koika, reg constr, format "'read0' '(' reg ')'").
+Notation "'read1' '(' reg ')' " := (URead P1 reg) (in custom koika, reg constr, format "'read1' '(' reg ')'").
 Notation "'write0' '(' reg ',' value ')'" :=
   (UWrite P0 reg value)
-    (in custom koika at level 1, reg constr at level 13, format "'write0' '(' reg ',' value ')'").
+    (in custom koika, reg constr, format "'write0' '(' reg ',' value ')'").
 Notation "'write1' '(' reg ',' value ')'" :=
   (UWrite P1 reg value)
-    (in custom koika at level 1, reg constr at level 13, format "'write1' '(' reg ',' value ')'").
+    (in custom koika, reg constr, format "'write1' '(' reg ',' value ')'").
 
-Notation "'if' a 'then' t 'else' f" := (UIf a t f) (in custom koika at level 86, right associativity, format "'[v' 'if'  a '/' 'then'  t '/' 'else'  f ']'").
-Notation "'guard' '(' a ')' " := (UIf (UUnop (UBits1 UNot) a) (UFail (bits_t 0)) (USugar (UConstBits Ob))) (in custom koika at level 86, right associativity, format "'guard' '(' a ')'").
-Notation "'when' a 'do' t " := (UIf a t (USugar (UConstBits Ob))) (in custom koika at level 91, right associativity, format "'[v' 'when'  a '/' 'do'  t '/' ']'").
-Notation "'assert' a 'in' c"          := (UIf a c (USugar (UConstBits Ob))) (in custom koika at level 200, a custom koika at level 200, right associativity, format "'[v' 'assert'  a '/' 'in'  c ']'").
-Notation "'assert' a 'else' b 'in' c" := (UIf a c b                       ) (in custom koika at level 200, a custom koika at level 200, right associativity, format "'[v' 'assert'  a '/' 'else'  b '/' 'in'  c ']'").
+Notation "'if' a 'then' t 'else' f" := (UIf a t f) (in custom koika at level 89, right associativity, format "'[v' 'if'  a '/' 'then'  t '/' 'else'  f ']'").
+Notation "'guard' '(' a ')' " := (UIf (UUnop (UBits1 UNot) a) (UFail (bits_t 0)) (USugar (UConstBits Ob))) (in custom koika at level 89, right associativity, format "'guard' '(' a ')'").
+Notation "'when' a 'do' t " := (UIf a t (USugar (UConstBits Ob))) (in custom koika at level 200, right associativity, format "'[v' 'when'  a '/' 'do'  t '/' ']'").
+Notation "'assert' a 'in' c"          := (UIf a c (USugar (UConstBits Ob))) (in custom koika at level 200, right associativity, format "'[v' 'assert'  a '/' 'in'  c ']'").
+Notation "'assert' a 'else' b 'in' c" := (UIf a c b                       ) (in custom koika at level 200, right associativity, format "'[v' 'assert'  a '/' 'else'  b '/' 'in'  c ']'").
 
-Notation "a '&&' b" :=  (UBinop (UBits2 UAnd) a b) (in custom koika at level 80,  right associativity, format "a  '&&'  b").
-Notation "'!' a" := (UUnop (UBits1 UNot) a) (in custom koika at level 75, format "'!' a").
-Notation "'><' a" := (UUnop (UBits1 URev) a) (in custom koika at level 75, format "'><' a").
+Notation "a '&&' b" :=  (UBinop (UBits2 UAnd) a b) (in custom koika at level 83, format "a  '&&'  b").
+Notation "'!' a" := (UUnop (UBits1 UNot) a) (in custom koika at level 65, format "'!' a").
+Notation "'><' a" := (UUnop (UBits1 URev) a) (in custom koika at level 65, format "'><' a").
 Notation "a '||' b" :=  (UBinop (UBits2 UOr) a b) (in custom koika at level 85, format "a  '||'  b").
-Notation "'zeroExtend(' a ',' b ')'" :=  (UUnop (UBits1 (UZExtL b)) a) (in custom koika, b constr at level 0, format "'zeroExtend(' a ',' b ')'").
-Notation "'sext(' a ',' b ')'" :=  (UUnop (UBits1 (USExt b)) a) (in custom koika, b constr at level 0, format "'sext(' a ',' b ')'").
-Notation "'ignore(' a ')'" :=  (UUnop (UConv UIgnore) a) (in custom koika, a custom koika).
-Notation "'pack(' a ')'" :=  (UUnop (UConv UPack) a) (in custom koika, a custom koika).
-Notation "'unpack(' t ',' v ')'" :=  (UUnop (UConv (UUnpack t)) v) (in custom koika, t constr at level 11, v custom koika).
-Notation "a  '^'  b" :=  (UBinop (UBits2 UXor) a b) (in custom koika at level 85).
-Notation "a  '+'  b" :=  (UBinop (UBits2 UPlus) a b) (in custom koika at level 85).
-Notation "a  '-'  b" :=  (UBinop (UBits2 UMinus) a b) (in custom koika at level 85).
-Notation "a  '*'  b" := (UBinop (UBits2 UMul) a b) (in custom koika at level 84).
-Notation "a  '!='  b" := (UBinop (UEq true) a b) (in custom koika at level 79).
-Notation "a  '=='  b" :=  (UBinop (UEq false) a b) (in custom koika at level 79).
-Notation "a  '>>'  b" :=  (UBinop (UBits2 ULsr) a b) (in custom koika at level 79).
-Notation "a  '>>>'  b" :=  (UBinop (UBits2 UAsr) a b) (in custom koika at level 79).
-Notation "a  '<<'  b" :=  (UBinop (UBits2 ULsl) a b) (in custom koika at level 79).
+Notation "'zeroExtend(' a ',' b ')'" :=  (UUnop (UBits1 (UZExtL b)) a) (in custom koika, b constr, format "'zeroExtend(' a ',' b ')'").
+Notation "'sext(' a ',' b ')'" :=  (UUnop (UBits1 (USExt b)) a) (in custom koika, b constr, format "'sext(' a ',' b ')'").
+Notation "'ignore(' a ')'" :=  (UUnop (UConv UIgnore) a) (in custom koika).
+Notation "'pack(' a ')'" :=  (UUnop (UConv UPack) a) (in custom koika).
+Notation "'unpack(' t ',' v ')'" :=  (UUnop (UConv (UUnpack t)) v) (in custom koika, t constr).
+Notation "a  '^'  b" :=  (UBinop (UBits2 UXor) a b) (in custom koika at level 84).
+Notation "a  '+'  b" :=  (UBinop (UBits2 UPlus) a b) (in custom koika at level 70).
+Notation "a  '-'  b" :=  (UBinop (UBits2 UMinus) a b) (in custom koika at level 70).
+Notation "a  '*'  b" := (UBinop (UBits2 UMul) a b) (in custom koika at level 69).
+Notation "a  '!='  b" := (UBinop (UEq true) a b) (in custom koika at level 80).
+Notation "a  '=='  b" :=  (UBinop (UEq false) a b) (in custom koika at level 80).
+Notation "a  '>>'  b" :=  (UBinop (UBits2 ULsr) a b) (in custom koika at level 74).
+Notation "a  '>>>'  b" :=  (UBinop (UBits2 UAsr) a b) (in custom koika at level 74).
+Notation "a  '<<'  b" :=  (UBinop (UBits2 ULsl) a b) (in custom koika at level 74).
 Notation "a  '<'  b" := (UBinop (UBits2 (UCompare false cLt)) a b) (in custom koika at level 79).
 Notation "a  '<s'  b" := (UBinop (UBits2 (UCompare true cLt)) a b) (in custom koika at level 79).
 Notation "a  '<='  b" := (UBinop (UBits2 (UCompare false cLe)) a b) (in custom koika at level 79).
@@ -129,78 +126,75 @@ Notation "a  '>'  b" := (UBinop (UBits2 (UCompare false cGt)) a b) (in custom ko
 Notation "a  '>s'  b" := (UBinop (UBits2 (UCompare true cGt)) a b) (in custom koika at level 79).
 Notation "a  '>='  b" := (UBinop (UBits2 (UCompare false cGe)) a b) (in custom koika at level 79).
 Notation "a  '>s='  b" := (UBinop (UBits2 (UCompare true cGe)) a b) (in custom koika at level 79).
-Notation "a '++' b" :=  (UBinop (UBits2 UConcat) a b) (in custom koika at level 80,  right associativity, format "a  '++'  b").
-Notation "a '[' b ']'" := (UBinop (UBits2 USel) a b) (in custom koika at level 75, format "'[' a [ b ] ']'").
+Notation "a '++' b" :=  (UBinop (UBits2 UConcat) a b) (in custom koika at level 75, format "a  '++'  b").
+Notation "a '[' b ']'" := (UBinop (UBits2 USel) a b) (in custom koika at level 60, format "'[' a [ b ] ']'").
 (* Notation "a '[' b ':' c ']'" := (UBinop (UBits2 (UIndexedSlice c)) a b) (in custom koika at level 75, c constr at level 0, format "'[' a [ b ':+' c ] ']'"). *)
-Notation "a '[' b ':+' c ']'" := (UBinop (UBits2 (UIndexedSlice c)) a b) (in custom koika at level 75, c constr at level 0, format "'[' a [ b ':+' c ] ']'").
-Notation "'`' a '`'" := ( a) (in custom koika at level 99, a constr at level 99).
+Notation "a '[' b ':+' c ']'" := (UBinop (UBits2 (UIndexedSlice c)) a b) (in custom koika at level 60, c constr at level 0, format "'[' a [ b ':+' c ] ']'").
+Notation "'`' a '`'" := ( a) (in custom koika, a constr).
 
 Notation "'fun' nm args ':' ret '=>' body" :=
   (Build_UInternalFunction' nm%string args ret body)
-    (in custom koika at level 99, nm custom koika_var at level 0, args custom koika_types, ret constr at level 0, body custom koika at level 99, right associativity, format "'[v' 'fun'  nm  args  ':'  ret  '=>' '/' body ']'").
+    (in custom koika at level 200, nm custom koika_var, args custom koika_types, ret constr at level 0, right associativity, format "'[v' 'fun'  nm  args  ':'  ret  '=>' '/' body ']'").
 Notation "'fun' nm '()' ':' ret '=>' body" :=
   (Build_UInternalFunction' nm%string nil ret body)
-    (in custom koika at level 99, nm custom koika_var at level 0, ret constr at level 0, body custom koika at level 99, right associativity, format "'[v' 'fun'  nm  '()'   ':'  ret  '=>' '/' body ']'").
+    (in custom koika at level 200, nm custom koika_var, ret constr at level 0, right associativity, format "'[v' 'fun'  nm  '()'   ':'  ret  '=>' '/' body ']'").
 
 (* Deprecated *)
 Notation "'call' instance method args" :=
   (USugar (UCallModule instance _ method args))
-    (in custom koika at level 99, instance constr at level 0, method constr at level 0, args custom koika_args).
+    (in custom koika at level 0, instance constr at level 0, method constr at level 0, args custom koika_args).
 Notation "'funcall' method args" :=
   (USugar (UCallModule id _ method args))
-    (in custom koika at level 98, method constr at level 0, args custom koika_args).
+    (in custom koika at level 0, method constr at level 0, args custom koika_args).
 Notation "'extcall' method '(' arg ')'" :=
   (UExternalCall method arg)
-    (in custom koika at level 98, method constr at level 0, arg custom koika).
+    (in custom koika, method constr at level 0, arg custom koika).
 Notation "'call0' instance method " :=
   (USugar (UCallModule instance _ method nil))
-    (in custom koika at level 98, instance constr at level 0, method constr).
+    (in custom koika at level 0, instance constr at level 0, method constr).
 Notation "'funcall0' method " :=
   (USugar (UCallModule id _ method nil))
-    (in custom koika at level 98,  method constr at level 0).
+    (in custom koika at level 0,  method constr at level 0).
 
 Notation "'get' '(' v ',' f ')'" :=
   (UUnop (UStruct1 (UGetField f)) v)
-    (in custom koika, v custom koika at level 13, f custom koika_var at level 0, format "'get' '(' v ','  f ')'").
+    (in custom koika, f custom koika_var, format "'get' '(' v ','  f ')'").
 Notation "'getbits' '(' t ',' v ',' f ')'" :=
   (UUnop (UStruct1 (UGetFieldBits t f)) v)
-    (in custom koika, t constr at level 11, v custom koika at level 13,
-        f custom koika_var at level 0,
+    (in custom koika, t constr, f custom koika_var,
         format "'getbits' '(' t ','  v ','  f ')'").
 Notation "'subst' '(' v ',' f ',' a ')'" :=
   (UBinop (UStruct2 (USubstField f)) v a)
-    (in custom koika, v custom koika at level 13, a custom koika at level 13, f custom koika_var at level 0, format "'subst' '(' v ','  f ',' a ')'").
+    (in custom koika, f custom koika_var, format "'subst' '(' v ','  f ',' a ')'").
 Notation "'substbits' '(' t ',' v ',' f ',' a ')'" :=
   (UBinop (UStruct2 (USubstFieldBits t f)) v a)
-    (in custom koika, t constr at level 11, v custom koika at level 13,
-        a custom koika at level 13, f custom koika_var at level 0,
+    (in custom koika, t constr, f custom koika_var,
         format "'substbits' '(' t ','  v ','  f ',' a ')'").
 
 Notation "'aref' '(' v ',' f ')'" :=
   (UUnop (UArray1 (UGetElement f)) v)
-    (in custom koika, v custom koika at level 13, f constr at level 0, format "'aref' '(' v ','  f ')'").
+    (in custom koika, f constr, format "'aref' '(' v ','  f ')'").
 Notation "'arefbits' '(' t ',' v ',' f ')'" :=
   (UUnop (UArray1 (UGetElementBits t f)) v)
-    (in custom koika, t constr at level 11, v custom koika at level 13,
-        f constr at level 0,
+    (in custom koika, t constr, f constr,
         format "'arefbits' '(' t ','  v ','  f ')'").
 Notation "'asubst' '(' v ',' f ',' a ')'" :=
   (UBinop (UArray2 (USubstElement f)) v a)
-    (in custom koika, v custom koika at level 13, a custom koika at level 13, f constr at level 0, format "'asubst' '(' v ','  f ',' a ')'").
+    (in custom koika, f constr, format "'asubst' '(' v ','  f ',' a ')'").
 Notation "'asubstbits' '(' t ',' v ',' f ',' a ')'" :=
   (UBinop (UArray2 (USubstElementBits t f)) v a)
-    (in custom koika, t constr at level 11, v custom koika at level 13,
-        a custom koika at level 13, f constr at level 0,
+    (in custom koika, t constr, f constr,
         format "'asubstbits' '(' t ','  v ','  f ',' a ')'").
 
 Declare Custom Entry koika_structs_init.
 
-Notation "f ':=' expr" := (cons (f,expr) nil) (in custom koika_structs_init at level 20, f custom koika_var at level 0, expr custom koika at level 88).
-Notation "a ';' b" := (app a b) (in custom koika_structs_init at level 91, a custom koika_structs_init).
+(* expr at level at level 89 to stay below koika's sequence (a ; b) *)
+Notation "f ':=' expr" :=  [(f,expr)] (in custom koika_structs_init at level 0, f custom koika_var, expr custom koika at level 89).
+Notation "a ';' b" := (app a b) (in custom koika_structs_init at level 1, a custom koika_structs_init).
 Notation "'struct' structtype '{' fields '}'" :=
-  (USugar (UStructInit structtype fields)) (in custom koika at level 1, structtype constr at level 0, fields custom koika_structs_init at level 92).
+  (USugar (UStructInit structtype fields)) (in custom koika, structtype constr at level 0, fields custom koika_structs_init).
 Notation "'struct' structtype '{' '}'" :=
-  (USugar (UStructInit structtype [])) (in custom koika at level 1, structtype constr at level 0).
+  (USugar (UStructInit structtype [])) (in custom koika, structtype constr at level 0).
 
   Definition mem_req :=
     {| struct_name := "mem_req";
@@ -208,24 +202,20 @@ Notation "'struct' structtype '{' '}'" :=
 
 Notation "'enum' enum_type '{' f '}'" :=
   (USugar (UConstEnum enum_type f))
-    (in custom koika at level 1, enum_type constr at level 1, f custom koika_var at level 1).
+    (in custom koika, enum_type constr at level 0, f custom koika_var at level 1).
 
 Notation "'match' var 'with' '|' branches 'return' 'default' ':' default 'end'" :=
   (USugar (USwitch var default branches))
-    (in custom koika at level 30,
-        var custom koika,
-        branches custom koika_branches,
-        default custom koika at level 99,
+    (in custom koika, branches custom koika_branches,
         format "'match'  var  'with' '/' '[v'  '|'  branches '/' 'return'  'default' ':' default ']' 'end'").
 
-Notation "'#' s" := (USugar (UConstBits s)) (in custom koika at level 98, s constr at level 0, only parsing).
-
+Notation "'#' s" := (USugar (UConstBits s)) (in custom koika at level 0, s constr at level 0, only parsing).
 
 Notation "r '|>' s" :=
   (Cons r s)
-    (at level 99, s at level 99, right associativity).
+    (at level 60, right associativity).
 Notation "'done'" :=
-  Done (at level 99).
+  Done.
 
 Module Type Tests.
   Parameter pos_t : Type.
