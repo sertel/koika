@@ -80,8 +80,8 @@ Notation rule := (rule pos_t var_t fn_name_t).
 
 Notation scheduler := (scheduler pos_t _).
 
-Notation UInternalFunction reg_t ext_fn_t := (InternalFunction var_t fn_name_t (uaction reg_t ext_fn_t)).
-Notation InternalFunction R Sigma sig tau := (InternalFunction var_t fn_name_t (action R Sigma sig tau)).
+Notation UInternalFunction reg_t ext_fn_t := (UInternalFunction pos_t var_t fn_name_t reg_t ext_fn_t).
+Notation InternalFunction R Sigma sig tau := (InternalFunction pos_t var_t fn_name_t R Sigma sig tau).
 
 Notation register_update_circuitry R Sigma := (register_update_circuitry _ R Sigma ContextEnv).
 
@@ -213,7 +213,7 @@ Notation tc_rule R Sigma ua :=
   (tc_action R Sigma (@List.nil (var_t * type)) unit_t ua) (only parsing).
 
 Notation tc_function R Sigma uf :=
-  (tc_action R Sigma (int_argspec uf) (int_retSig uf) (int_body uf)) (only parsing).
+  (tc_action R Sigma (uint_argspec uf) (uint_retType uf) (uint_body uf)) (only parsing).
 
 Ltac _arg_type R :=
   match type of R with

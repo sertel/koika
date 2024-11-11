@@ -42,7 +42,7 @@ Definition function
   {tau sig reg_t ext_fn_t}
   (R : reg_t -> type)
   (Sigma: ext_fn_t -> ExternalSignature) :=
-    Types.InternalFunction var_t fn_name_t
+    Types.InternalFunction' fn_name_t
       (TypedSyntax.action pos_t var_t fn_name_t R Sigma sig tau).
 
 Notation "'<{' e '}>'" := (e) (e custom koika_t at level 200).
@@ -199,17 +199,31 @@ Declare Custom Entry koika_t_types_binder.
 Notation "'(' x ':' y ')'" := (x%string, (y : type)) (in custom koika_t_types_binder at level 60, x custom koika_t_var at level 0, y constr at level 12 ).
 Notation "a  ..  b" := (cons a ..  (cons b nil) ..)  (in custom koika_t_types at level 95, a custom koika_t_types_binder , b custom koika_t_types_binder, right associativity).
 
+(* We want to tell the typechecker that the body of the function
+ * should have the function's arguments in its context (sig).
+ *
+ * However, using a type hint where R Sigma are kept implicit
+ * like:
+ * ```
+ * Definition some_act : action R Sigma :=
+ * <{ ... }>: action' (sig := ...) _ _.
+ * ```
+ * does not work since coq is then trying to infer R and Sigma from
+ * the body term instead of the outer definition.
+ *
+ * To tell coq to infer it from the definition we need
+ * bidirectionality hints and thus we need a seperate function.
+ *)
+Local Definition refine_sig_tau sig tau {reg_t ext_fn_t}
+  {R : reg_t -> type} {Sigma : ext_fn_t -> ExternalSignature}
+  (a : action' R Sigma (tau := tau) (sig := sig)) : action' R Sigma := a.
+Arguments refine_sig_tau sig tau {reg_t ext_fn_t} {R Sigma} & a : assert.
+
 Notation "'fun' nm args ':' ret '=>' body" :=
-  ({| int_name := nm%string;
-     int_argspec := args;
-     int_retSig := ret;
-     int_body := body |} : function (sig := args) _ _)
+  (Build_InternalFunction' nm%string (refine_sig_tau args ret body))
     (in custom koika_t at level 99, nm custom koika_t_var at level 0, args custom koika_t_types, ret constr at level 0, body custom koika_t at level 99, format "'[v' 'fun'  nm  args  ':'  ret  '=>' '/' body ']'").
 Notation "'fun' nm '()' ':' ret '=>' body" :=
-  ({| int_name := nm%string;
-     int_argspec := nil;
-     int_retSig := ret;
-     int_body := body |} : function (sig := nil) _ _)
+  (Build_InternalFunction' nm%string (refine_sig_tau nil ret body))
     (in custom koika_t at level 99, nm custom koika_t_var at level 0, ret constr at level 0, body custom koika_t at level 99, format "'[v' 'fun'  nm  '()'   ':'  ret  '=>' '/' body ']'").
 
 (* Koika_args *)
@@ -261,24 +275,28 @@ Fixpoint lift_reg
     | Unop fn arg => Unop fn (lift_reg lift arg)
     | Binop fn arg1 arg2 => Binop fn (lift_reg lift arg1) (lift_reg lift arg2)
     | ExternalCall fn arg => ExternalCall fn (lift_reg lift arg)
-    | InternalCall fn args body =>
-      InternalCall fn (rew List.map_id _ in
+    | InternalCall fn args =>
+      InternalCall {| int_name := fn.(int_name);
+        int_body := (lift_reg lift fn.(int_body)) |}
+      (rew List.map_id _ in
       @cmap _ _ _ (fun k_tau => action' (tau := (snd k_tau)) sR Sigma)
-        id (fun _ => lift_reg lift) _ args) (lift_reg lift body)
+        id (fun _ => lift_reg lift) _ args)
     | APos pos a => APos pos (lift_reg lift a)
     end.
 
-
 Notation "fn args" :=
-  (InternalCall (tau := fn.(int_retSig)) (argspec := rev fn.(int_argspec)) fn.(int_name) args fn.(int_body))
+  (InternalCall fn args)
     (in custom koika_t at level 1, fn constr at level 0 , args custom koika_t_args at level 99, only parsing).
 
 Notation "instance  '.(' fn ')' args" :=
-  (InternalCall (tau := fn.(int_retSig)) (argspec := rev fn.(int_argspec)) fn.(int_name) args (lift_reg (exist _ instance (fun _ => eq_refl)) fn.(int_body)))
+  (InternalCall {|
+    int_name := fn.(int_name);
+    int_body := (lift_reg (exist _ instance (fun _ => eq_refl)) fn.(int_body))
+    |} args)
     (in custom koika_t at level 1, instance constr at level 0, fn constr, args custom koika_t_args at level 99).
 
 Notation "'{' fn '}' args" :=
-  (InternalCall (tau := fn.(int_retSig)) (argspec := rev fn.(int_argspec)) fn.(int_name) args fn.(int_body))
+  (InternalCall fn args)
     (in custom koika_t at level 1, fn constr at level 200 , args custom koika_t_args at level 99, only parsing).
 
 Notation "'extcall' method '(' arg ')'" := (ExternalCall method arg) (in custom koika_t at level 98, method constr at level 0, arg custom koika_t).
@@ -538,7 +556,7 @@ Module Type Tests2.
   Program Definition test_lit : _action (tau := bits_t 5) := (Seq (Write P0 data0 <{ Ob~1~1~0~0~1 }>) (Const (tau := bits_t _) (Bits.of_N ltac:(let x := eval cbv in ((len "01100") * 1) in exact x) (bin_string_to_N "01100")))).
   Fail Next Obligation.
   Definition test_20 : _action := <{ |0b"11001100"| [ Ob~0~0~0 :+ 3 ] }>.
-  Definition test_23 : function R Sigma := <{ fun test (arg1 : (bits_t 3)) (arg2 : bits_t 2) : bits_t 4 => pass }>.
+  Definition test_23 : function R Sigma := <{ fun test (arg1 : (bits_t 3)) (arg2 : bits_t 2) : unit_t => pass }>.
   Definition test_24 (sz : nat) : function R Sigma := <{ fun test (arg1 : bits_t sz) (arg1 : bits_t sz) : bits_t sz  => fail(sz)}>.
   Definition test_25 (sz : nat) : function R Sigma := <{fun test (arg1 : bits_t sz ) : bits_t sz => let oo := fail(sz) >> fail(sz) in oo}>.
   Definition test_26 (sz : nat) : function R Sigma := <{ fun test () : bits_t sz  => fail(sz) }>.

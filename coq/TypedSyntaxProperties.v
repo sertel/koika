@@ -45,15 +45,14 @@ Section TypedSyntaxProperties.
     | [ H: Some _ = Some _ |- _ ] => inversion H; subst; clear H
     | _ => solve [intuition eauto 3 using bits_to_N_zero]
     end.
-
-  Lemma returns_zero_correct {sig tau} :
-    forall (a: action sig tau) (Gamma: tcontext sig) (sched_log: Log) (action_log: Log),
+  Fixpoint returns_zero_correct {sig tau} (a: action sig tau) {struct a} :
+    forall (Gamma: tcontext sig) (sched_log: Log) (action_log: Log),
       returns_zero a = true ->
       forall l v G,
         interp_action r sigma Gamma sched_log action_log a = Some (l, v, G) ->
         bits_of_value v = Bits.zeroes (type_sz tau).
   Proof.
-    induction a; repeat dec_step.
+    destruct a; try solve [repeat dec_step].
   Qed.
 
   Lemma is_pure_correct :
@@ -70,11 +69,12 @@ Section TypedSyntaxProperties.
                interp_args r sigma Gamma sched_log action_log args = Some (l', v, G) ->
                l = action_log).
 
-    { clear dependent a; clear t t2 Heqo.
+    { destruct fn as [name a]; clear dependent a.
+      clear t t2 Heqo.
       generalize dependent Gamma.
       generalize dependent sched_log.
       generalize dependent action_log.
-      generalize dependent (rev argspec); clear argspec.
+      generalize dependent (argspec).
       fix IHargs 2; destruct args; cbn; intros;
         repeat dec_step. }
 

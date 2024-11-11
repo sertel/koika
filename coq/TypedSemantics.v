@@ -110,9 +110,9 @@ Section Interp.
       | ExternalCall fn arg1 => fun Gamma =>
         let/opt3 action_log, arg1, Gamma := interp_action Gamma sched_log action_log arg1 in
         Some (action_log, sigma fn arg1, Gamma)
-      | InternalCall name args body => fun Gamma =>
+      | InternalCall fn args => fun Gamma =>
         let/opt3 action_log, results, Gamma := interp_args' (@interp_action) Gamma sched_log action_log args in
-        let/opt3 action_log, v, _ := interp_action results sched_log action_log body in
+        let/opt3 action_log, v, _ := interp_action results sched_log action_log fn.(int_body) in
         Some (action_log, v, Gamma)
       | APos _ a => fun Gamma =>
         interp_action Gamma sched_log action_log a

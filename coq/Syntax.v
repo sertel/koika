@@ -20,7 +20,7 @@ Section Syntax.
   | UUnop (ufn1: PrimUntyped.ufn1) (arg1: uaction)
   | UBinop (ufn2: PrimUntyped.ufn2) (arg1: uaction) (arg2: uaction)
   | UExternalCall (ufn: ext_fn_t) (arg: uaction)
-  | UInternalCall (ufn: InternalFunction var_t fn_name_t uaction) (args: list uaction)
+  | UInternalCall (ufn: UInternalFunction' var_t fn_name_t uaction) (args: list uaction)
   | UAPos (p: pos_t) (e: uaction)
   | USugar (s: usugar)
   with usugar {reg_t ext_fn_t} :=
@@ -40,7 +40,7 @@ Section Syntax.
   | UCallModule {module_reg_t module_ext_fn_t: Type}
                 (fR: module_reg_t -> reg_t)
                 (fSigma: @Lift module_ext_fn_t ext_fn_t)
-                (fn: InternalFunction var_t fn_name_t (@uaction module_reg_t module_ext_fn_t))
+                (fn: UInternalFunction' var_t fn_name_t (@uaction module_reg_t module_ext_fn_t))
                 (args: list uaction).
 
   Inductive scheduler :=
@@ -54,3 +54,8 @@ Arguments Lift: clear implicits.
 Arguments usugar : clear implicits.
 Arguments uaction : clear implicits.
 Arguments scheduler : clear implicits.
+
+Notation UInternalFunction pos_t var_t fn_name_t reg_t ext_fn_t :=
+  (UInternalFunction'
+     var_t fn_name_t
+     (uaction pos_t var_t fn_name_t reg_t ext_fn_t)).

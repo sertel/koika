@@ -130,10 +130,10 @@ Section Lowering.
         lower_binop fn (l a1) (l a2)
       | TypedSyntax.ExternalCall fn a =>
         LoweredSyntax.ExternalCall fn (l a)
-      | TypedSyntax.InternalCall fn args body =>
+      | TypedSyntax.InternalCall fn args =>
         SyntaxMacros.InternalCall
           (lower_args' (@lower_action) args)
-          (l body)
+          (l fn.(int_body))
       | TypedSyntax.APos p a =>
         LoweredSyntax.APos p (l a)
       end.
