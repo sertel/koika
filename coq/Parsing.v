@@ -21,6 +21,7 @@ Require Import
 
 Export Koika.Types.SigNotations.
 Export Koika.Primitives.PrimUntyped.
+Export TypedSyntaxMacros.
 Export Coq.Strings.String.
 Export Coq.Lists.List.ListNotations.
 

@@ -17,12 +17,14 @@
 Require Import
   Koika.Common
   Koika.TypedSyntax
-  Koika.IdentParsing.
+  Koika.IdentParsing
+  Koika.TypedSyntaxMacros.
 Require Koika.Syntax.
 Require Import Unicode.Utf8.
 
 Import Specif.SigTNotations.
 
+Export TypedSyntaxMacros.
 Export Koika.Types.SigNotations.
 Export Koika.Primitives.PrimTyped.
 Export Coq.Strings.String.
@@ -202,68 +204,16 @@ Notation "'(' x ',' .. ',' y ')'" := (CtxCons (_,_) (x) .. (CtxCons (_,_) (y) Ct
 Notation "'(' ')'" := (CtxEmpty) (in custom koika_t_args).
 Notation "'()'"    := (CtxEmpty) (in custom koika_t_args).
 
-
-(*
-  Assume you have a function in a Modul:
-  ```
-  Inductive reg_t := reg1.
-  Definition R (r : reg_t) := bits_t 2.
-  Definition func : function R empty_Sigma := <{
-    fun f () : bits_t 2 =>
-      read0(reg1)
-  }>.
-  ```
-
-  This function is typed using the [R] and [Sigma]
-  of the modul. However, to call this function in
-  a composition of modules it needs to be typed with
-  the [super_R] and (possibly) [super_Sigma] of this
-  larger module. (See TypedSyntax.v [InternalCall] -
-  `body` has the same R/Sigma as the retuned type)
-
-  This function will lift a given action [act]
-*)
-Fixpoint lift_reg
-  {reg_t sreg_t ext_fn_t tau sig}
-  {Sigma: ext_fn_t -> ExternalSignature}
-  {R : forall r : reg_t, type}
-  {sR : forall sr : sreg_t, type}
-  (lift : {lift' : reg_t -> sreg_t | forall r : reg_t, sR (lift' r) = R r})
-  (act : action' (tau := tau) (sig := sig) R Sigma)
-  : action' (tau := tau) (sig := sig) sR Sigma :=
-    let (lift_fn, liftH) := lift in
-    match act with
-    | Fail tau => Fail tau
-    | Var mem => Var mem
-    | Const val => Const val
-    | Assign mem val => Assign mem (lift_reg lift val)
-    | Seq a1 a2 => Seq (lift_reg lift a1) (lift_reg lift a2)
-    | Bind var val body => Bind var (lift_reg lift val) (lift_reg lift body)
-    | If cond tr fl => If (lift_reg lift cond) (lift_reg lift tr) (lift_reg lift fl)
-    | Read port idx => rew liftH idx in
-      Read port (lift_fn idx)
-    | Write port idx val =>
-      Write port (lift_fn idx) (lift_reg lift (rew <- liftH idx in val))
-    | Unop fn arg => Unop fn (lift_reg lift arg)
-    | Binop fn arg1 arg2 => Binop fn (lift_reg lift arg1) (lift_reg lift arg2)
-    | ExternalCall fn arg => ExternalCall fn (lift_reg lift arg)
-    | InternalCall fn args =>
-      InternalCall {| int_name := fn.(int_name);
-        int_body := (lift_reg lift fn.(int_body)) |}
-      (rew List.map_id _ in
-      @cmap _ _ _ (fun k_tau => action' (tau := (snd k_tau)) sR Sigma)
-        id (fun _ => lift_reg lift) _ args)
-    | APos pos a => APos pos (lift_reg lift a)
-    end.
-
 Notation "fn args" := (InternalCall fn args)
   (in custom koika_t at level 0, fn constr at level 0 , args custom koika_t_args, only parsing).
+
 Notation "instance  '.(' fn ')' args" :=
   (InternalCall {|
     int_name := fn.(int_name);
-    int_body := (lift_reg (exist _ instance (fun _ => eq_refl)) fn.(int_body))
+    int_body := (lift (lift_fn_of instance eq_refl) _ fn.(int_body))
   |} args)
-    (in custom koika_t at level 0, instance constr at level 0, fn constr, args custom koika_t_args).
+  (in custom koika_t at level 0, instance constr at level 0, fn constr, args custom koika_t_args).
+
 Notation "'{' fn '}' args" := (InternalCall fn args)
   (in custom koika_t at level 0, fn constr, args custom koika_t_args, only parsing).
 
@@ -272,49 +222,14 @@ Notation "'{' fn '}' args" := (InternalCall fn args)
 (*                                Constructors                               *)
 (* ========================================================================= *)
 
-Section Macro.
-  Context {var_t reg_t ext_fn_t: Type}.
-  Context {R : reg_t -> type}.
-  Context {Sigma: ext_fn_t -> ExternalSignature}.
-
-  (* A koika action which build a struct instance filled 
-  with zeroes *)
-  Definition struct_init_zeros {sig} (tau: type) : action' (sig := sig) R Sigma :=
-    Unop (Conv tau Unpack) (Const (tau := bits_t _) (Bits.zeroes (type_sz tau))).
-
-  (* Transforming a list of actions into a sequence of
-  substitute operations to initialize a struct *)
-  Fixpoint struct_init
-    {sig}
-    (s_sig: struct_sig)
-    (fields: list {idx : struct_index s_sig & (action' (tau := field_type s_sig idx) (sig := sig) R Sigma)})
-    : action' (sig := sig) R Sigma :=
-    match fields with
-    | cons (field) fields' =>
-      (Binop (Struct2 SubstField s_sig (projT1 field))) (struct_init s_sig fields') (projT2 field)
-    | nil => struct_init_zeros (struct_t s_sig)
-    end.
-
-  (* The struct's signature needs to be known to check if a given field exists within
-  the struct and to compute its index.
-
-  This signature is inferred by the typechecker when the notation is used. This typeclass
-  makes sure that the index computation is deferred and only executed after the signature
-  is known *)
-  Class FieldSubst {tau sig} (s_sig : struct_sig) (field : string) (a : action' (sig := sig) (tau := tau) R Sigma) :=
-    field_subst : {idx : struct_index s_sig & (action' (sig := sig) (tau := field_type s_sig idx) R Sigma )}.
-End Macro.
-Hint Extern 1 (FieldSubst ?sig ?field ?a) => exact ((must (List_assoc field sig.(struct_fields)) ; a)) : typeclass_instances.
-
 Declare Custom Entry koika_t_struct_field.
 Declare Custom Entry koika_t_struct_init.
 (* struct instantiation in koika *)
 (* why only level 88? - probably needs to be below sequence *)
-Notation "f ':=' expr" := (_ : FieldSubst _ f expr) (in custom koika_t_struct_field at level 0, f custom koika_t_var, expr custom koika_t at level 89).
+Notation "f ':=' expr" := (field_subst f expr) (in custom koika_t_struct_field at level 0, f custom koika_t_var, expr custom koika_t at level 89).
 Notation "a ';' b" := (cons a   b) (in custom koika_t_struct_init at level 0, a custom koika_t_struct_field, right associativity).
 Notation "a ';'"   := (cons a nil) (in custom koika_t_struct_init at level 0, a custom koika_t_struct_field). (* trailing comma *)
 Notation "a"       := (cons a nil) (in custom koika_t_struct_init at level 0, a custom koika_t_struct_field).
-
 
 Notation "'struct' sig '{' '}'" :=
   (struct_init sig []) (in custom koika_t, sig constr at level 0).
@@ -322,28 +237,18 @@ Notation "'struct' sig '{' '}'" :=
 Notation "'struct' sig '{' fields '}'" :=
   (struct_init sig fields) (in custom koika_t, sig constr at level 0, fields custom koika_t_struct_init).
 
-(* create struct literals in constr (normal Coq) *)
-(* using Ltac to defer the typechecking until the term is fully constructed *)
-(* todo - maybe rebuild using type-classes *)
-Local Ltac struct_init_from_list sig l :=
-  lazymatch l with
-  | cons ?field ?l' => let acc := struct_init_from_list sig l' in
-    constr:(BitFuns.subst_field sig.(struct_fields) (acc) (must (List_assoc (fst field) sig.(struct_fields))) (snd field))
-  | nil => constr:((value_of_bits Bits.zero) : struct_t sig)
-  end.
-
 Declare Custom Entry koika_t_struct_init_constr.
 Declare Custom Entry koika_t_struct_field_constr.
 
-Notation "f ':=' expr" := (pair f expr) (in custom koika_t_struct_field_constr at level 0, f custom koika_t_var, expr constr at level 10).
+Notation "f ':=' expr" := (field_subst_constr f expr) (in custom koika_t_struct_field_constr at level 0, f custom koika_t_var, expr constr at level 10).
 Notation "a ';' b" := (cons a    b) (in custom koika_t_struct_init_constr at level 0, a custom koika_t_struct_field_constr, right associativity).
 Notation "a ';'"   := (cons a  nil) (in custom koika_t_struct_init_constr at level 0, a custom koika_t_struct_field_constr). (* trailing comma *)
 Notation "a"       := (cons a  nil) (in custom koika_t_struct_init_constr at level 0, a custom koika_t_struct_field_constr).
 
 Notation "'struct' sig '<' '>'" :=
-  (value_of_bits Bits.zero : (struct_t sig)) (sig constr at level 0).
+  (struct_init_constr sig []) (sig constr at level 0).
 Notation "'struct' sig '<' fields '>'" :=
-  (ltac:(let e := struct_init_from_list sig fields in exact e) : (struct_t sig)) (sig constr at level 0, fields custom koika_t_struct_init_constr).
+  (struct_init_constr sig fields) (sig constr at level 0, fields custom koika_t_struct_init_constr).
 
 (* TODO i would like to use different paratesis here *)
 Notation "'enum' sig '{' f '}'" :=
@@ -371,31 +276,6 @@ Notation "'Ob'"            := (Const (tau := bits_t 0) Bits.nil)
     (in custom koika_t at level 0).
 
 Declare Custom Entry koika_t_literal.
-
-(* koika bit vector literals *)
-Require BinaryString OctalString HexString HexadecimalString DecimalString.
-
-(* Coq's implementation just silently returns 0 on an invalid string -
-  for better error recognition these methods are redefined here returning option *)
-Local Fixpoint num_string_to_option_N' (s : string) (base : N) (convert : Ascii.ascii -> option N) (remainder : option N) : option N :=
-  match s with
-  | EmptyString => remainder
-  | String c s' => num_string_to_option_N' s' base convert
-    (match remainder, convert c with
-    | Some rem, Some c_v => Some (N.add (N.mul base rem) c_v)
-    | _, _ => None
-    end)
-  end.
-Local Definition num_string_to_option_N (s : string) (base : N) (convert : Ascii.ascii -> option N) : option N :=
-  match s with
-  | EmptyString => None
-  | String _ _ => num_string_to_option_N' s base convert (Some 0%N)
-  end.
-
-Local Definition bin_string_to_N s := (must (num_string_to_option_N s 2 BinaryString.ascii_to_digit)).
-Local Definition oct_string_to_N s := (must (num_string_to_option_N s 8 OctalString.ascii_to_digit)).
-Local Definition dec_string_to_N s := (must (option_map N.of_uint (DecimalString.NilZero.uint_of_string s))).
-Local Definition hex_string_to_N s := (must (num_string_to_option_N s 16 HexString.ascii_to_digit)).
 
 Local Definition len := String.length.
 
@@ -472,24 +352,6 @@ Notation "'arefbits' '(' t ',' v ',' f ')'"         := (Unop  (Array1  (GetEleme
 Notation "'asubst' '(' v ',' f ',' a ')'"           := (Binop (Array2  (SubstElement       f)) v a) (in custom koika_t,           f constr, format "'asubst' '(' v ','  f ',' a ')'").
 Notation "'asubstbits' '(' t ',' v ',' f ',' a ')'" := (Binop (Array2  (SubstElementBits t f)) v a) (in custom koika_t, t constr, f constr, format "'asubstbits' '(' t ','  v ','  f ',' a ')'"). 
 
-Section Macro2.
-  Context {var_t reg_t ext_fn_t: Type}.
-  Context {R : reg_t -> type}.
-  Context {Sigma: ext_fn_t -> ExternalSignature}.
-
-  Fixpoint macro_switch
-    {tau tau_eq sig}
-    (var: action' (tau := tau_eq) (sig := sig) R Sigma)
-    (default: action' (tau := tau) (sig := sig) R Sigma)
-    (branches: list (action' (tau := tau_eq) (sig := sig) R Sigma * action' (tau := tau) (sig := sig) R Sigma))
-    : action' (tau := tau) (sig := sig) R Sigma :=
-    match branches with
-    | nil => default
-    | (label, act) :: branches =>
-      If (Binop (Eq _ false) var label) act (macro_switch var default branches)
-    end.
-End Macro2.
-
 (* koika_t_branches - utility
  *
  * This grammar is used for the syntax
@@ -500,7 +362,7 @@ Notation "x '=>' a "     := [(x,a)] (in custom koika_t_branches at level 0, x cu
 Notation "arg1 '|' arg2" := (arg1 ++ arg2) (in custom koika_t_branches at level 1, format "'[v' arg1 ']' '/' '|'  '[v' arg2 ']'").
 
 Notation "'match' var 'with' '|' branches 'return' 'default' ':' default 'end'" :=
-  (macro_switch var default branches)
+  (switch var default branches)
     (in custom koika_t, branches custom koika_t_branches,
         format "'match'  var  'with' '/' '[v'  '|'  branches '/' 'return'  'default' ':' default ']' 'end'").
 
