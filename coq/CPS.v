@@ -1,7 +1,6 @@
 (*! Language | Continuation-passing semantics and weakest precondition calculus !*)
 
 Require Import CompactSemantics.
-Require Import Magic.
 
 Section CPS.
   Context {pos_t var_t fn_name_t rule_name_t reg_t ext_fn_t: Type}.
