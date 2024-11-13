@@ -30,6 +30,9 @@ Export Koika.Primitives.PrimTyped.
 Export Coq.Strings.String.
 Export Coq.Lists.List.ListNotations.
 
+Export (hints) IdentParsing.TC.
+Local Notation id_to_s a := (TC.ident_to_string a : string).
+
 Definition pos_t := unit.
 Definition var_t := string.
 Definition fn_name_t := string.
@@ -67,7 +70,7 @@ Notation "'<{' e '}>'" := (e) (e custom koika_t).
  * to parse identifiers as strings.
  *)
 Declare Custom Entry koika_t_var.
-Notation "a" := (ident_to_string a) (in custom koika_t_var at level 0, a ident, only parsing).
+Notation "a" := (id_to_s a) (in custom koika_t_var at level 0, a ident, only parsing).
 Notation "a" := (a) (in custom koika_t_var at level 0, a ident, format "'[' a ']'", only printing).
 
 (* Variable references
@@ -198,8 +201,13 @@ Notation "'#' s" := (Const (tau := bits_t _) s) (in custom koika_t at level 0, s
  *   Some of the literal notations also start with an identifier.
  *   Thus, the same restrictions apply.
  *)
-Notation "a" := (Var (k := (ident_to_string a)) _) (in custom koika_t at level 0, a constr at level 0, only parsing).
+Notation "a" := (Var (k := id_to_s a) _) (in custom koika_t at level 0, a constr at level 0, only parsing).
 Notation "a" := (Var a) (in custom koika_t at level 0, a constr at level 0, only printing).
+
+(* Alternative shorter set syntax
+ * Note: expr is level 89 to stay below ';' *)
+Notation "a ':=' b" := (Assign (k := id_to_s a) _ b) (in custom koika_t at level 0, a constr at level 0, b custom koika_t at level 89, only parsing).
+Notation "a ':=' b" := (Assign a                                        b) (in custom koika_t at level 0, a constr at level 0, b custom koika_t at level 89, only printing).
 
 Declare Custom Entry koika_t_args.
 Notation "'(' x ',' .. ',' y ')'" := (CtxCons (_,_) (x) .. (CtxCons (_,_) (y) CtxEmpty) ..) (in custom koika_t_args, x custom koika_t, y custom koika_t).
@@ -457,6 +465,7 @@ Module Type Tests2.
   Definition test_3' : _action := <{ let yoyo := pass in set yoyo := pass ; pass }>.
   Fail Definition test_3'' : _action := <{ set yoyo := pass ; pass; }>.
   Fail Definition test_5 : _action := <{ let yoyo := set yoyo := pass in pass; }>.
+  Definition test_6 : _action := <{ let yoyo := 0b"101" in yoyo := 0b"111"; pass }>.
   Inductive test := rData (n:nat).
   Definition test_R (r : test) := bits_t 5.
   Definition test_9 : _action := <{ read0(data0) }>.
