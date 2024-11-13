@@ -82,8 +82,9 @@ Notation "a" := (a) (in custom koika_t_var at level 0, a ident, format "'[' a ']
  * a type checking error.
  *)
 (* TODO better error messages *)
-Class VarRef {K1 K2 k2} k1 sig := vr_m : @member (K1 * K2) (k1,k2) sig.
-Hint Extern 1 (VarRef ?k1 ?sig) => exact (projT2 (must (assoc k1 sig))) : typeclass_instances.
+Existing Class member.
+#[export] Existing Instance MemberHd.
+#[export] Existing Instance MemberTl.
 
 (* We want to tell the typechecker that the body of the function
  * should have the function's arguments in its context (sig).
@@ -127,7 +128,7 @@ Notation "'let' a ':=' b 'in' c" := (Bind a b c) (in custom koika_t at level 200
 Notation "a ';' b" := (Seq a                          b) (in custom koika_t at level 90, b at level 200, format "'[v' a ';' '/' b ']'" ).
 Notation "a ';'"   := (Seq a (Const (tau := unit_t) Ob)) (in custom koika_t at level 90). (* trailing comma *)
 
-Notation "'set' a ':=' b" := (Assign (_: VarRef a _) b) (in custom koika_t at level 89, a custom koika_t_var, format "'set'  a  ':='  b").
+Notation "'set' a ':=' b" := (Assign (k := a) _ b) (in custom koika_t at level 89, a custom koika_t_var, format "'set'  a  ':='  b").
 
 Notation "'if' a 'then' t"          := (If a t                  (Const (tau := unit_t) Ob)) (in custom koika_t at level 89, t custom koika_t at level 89, right associativity, format "'[v' 'if'  a '/' 'then'  t ']'").
 Notation "'if' a 'then' t 'else' f" := (If a t                                  f         ) (in custom koika_t at level 89, t custom koika_t at level 89, right associativity, format "'[v' 'if'  a '/' 'then'  t '/' 'else'  f ']'").
@@ -197,7 +198,7 @@ Notation "'#' s" := (Const (tau := bits_t _) s) (in custom koika_t at level 0, s
  *   Some of the literal notations also start with an identifier.
  *   Thus, the same restrictions apply.
  *)
-Notation "a" := (Var (_: VarRef (ident_to_string a) _)) (in custom koika_t at level 0, a constr at level 0, only parsing).
+Notation "a" := (Var (k := (ident_to_string a)) _) (in custom koika_t at level 0, a constr at level 0, only parsing).
 Notation "a" := (Var a) (in custom koika_t at level 0, a constr at level 0, only printing).
 
 Declare Custom Entry koika_t_args.
