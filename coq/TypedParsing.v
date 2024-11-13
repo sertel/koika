@@ -335,10 +335,19 @@ Notation "'unpack(' t ',' v ')'"     := (Unop (Conv t Unpack)     v) (in custom 
 
 Notation "'extcall' method '(' arg ')'" := (ExternalCall method arg) (in custom koika_t, method constr at level 0).
 
-Notation "'get' '(' v ',' f ')'"                    := (Unop  (Struct1 GetField _      (PrimTypeInference.find_field _ f))  v  ) (in custom koika_t,           f custom koika_t_var, format "'get' '(' v ','  f ')'").
-Notation "'getbits' '(' t ',' v ',' f ')'"          := (Unop  (Bits1 (GetFieldBits t   (PrimTypeInference.find_field t f))) v  ) (in custom koika_t, t constr, f custom koika_t_var, format "'getbits' '(' t ','  v ','  f ')'").
-Notation "'subst' '(' v ',' f ',' a ')'"            := (Binop (Struct2 SubstField _    (PrimTypeInference.find_field _ f))  v a) (in custom koika_t,           f custom koika_t_var, format "'subst' '(' v ','  f ',' a ')'").
-Notation "'substbits' '(' t ',' v ',' f ',' a ')'"  := (Binop (Bits2 (SubstFieldBits t (PrimTypeInference.find_field t f))) v a) (in custom koika_t, t constr, f custom koika_t_var, format "'substbits' '(' t ','  v ','  f ',' a ')'").
+Notation "'get' '(' v ',' f ')'"                    := (Unop  (Struct1 GetField _      (struct_idx _ f))  v  ) (in custom koika_t,           f custom koika_t_var, format "'get' '(' v ','  f ')'").
+Notation "'getbits' '(' t ',' v ',' f ')'"          := (Unop  (Bits1 (GetFieldBits t   (struct_idx t f))) v  ) (in custom koika_t, t constr, f custom koika_t_var, format "'getbits' '(' t ','  v ','  f ')'").
+Notation "'subst' '(' v ',' f ',' a ')'"            := (Binop (Struct2 SubstField _    (struct_idx _ f))  v a) (in custom koika_t,           f custom koika_t_var, format "'subst' '(' v ','  f ',' a ')'").
+Notation "'substbits' '(' t ',' v ',' f ',' a ')'"  := (Binop (Bits2 (SubstFieldBits t (struct_idx t f))) v a) (in custom koika_t, t constr, f custom koika_t_var, format "'substbits' '(' t ','  v ','  f ',' a ')'").
+
+Notation "'get@' sig '(' v ',' f ')'" := (Unop (Struct1 GetField sig (struct_idx sig f)) v)
+  (in custom koika_t, sig constr at level 0, f custom koika_t_var, format "'get@' sig '(' v ','  f ')'").
+Notation "'getbits@' sig '(' v ',' f ')'" := (Unop (Bits1 (GetFieldBits sig (struct_idx sig f))) v)
+  (in custom koika_t, sig constr at level 0, f custom koika_t_var, format "'getbits@' sig '(' v ','  f ')'").
+Notation "'subst@' sig '(' v ',' f ',' a ')'" := (Binop (Struct2 SubstField sig (struct_idx sig f)) v a)
+  (in custom koika_t, sig constr at level 0, f custom koika_t_var, format "'subst@' sig '(' v ','  f ',' a ')'").
+Notation "'substbits@' sig '(' v ',' f ',' a ')'" := (Binop (Bits2 (SubstFieldBits sig (struct_idx sig f))) v a)
+  (in custom koika_t, sig constr at level 0, f custom koika_t_var, format "'substbits@' sig '(' v ','  f ','  a ')'"). (* FIXME parsing.v spacing *)
 
 Notation "'aref' '(' v ',' f ')'"                   := (Unop  (Array1  (GetElement         f)) v)   (in custom koika_t,           f constr, format "'aref' '(' v ','  f ')'").
 Notation "'arefbits' '(' t ',' v ',' f ')'"         := (Unop  (Array1  (GetElementBits   t f)) v)   (in custom koika_t, t constr, f constr, format "'arefbits' '(' t ','  v ','  f ')'").
@@ -612,6 +621,23 @@ Module Type Tests2.
       ("four" , bits_t 3);
       ("five" , enum_t numbers_e) ]
   |}.
+
+  Definition test_get : action' R Sigma (sig := [("a", struct_t numbers_s)]) := <{
+    get(a, one)
+  }>.
+
+  Definition test_get2 : action' R Sigma (sig := [("a", struct_t numbers_s)]) := <{
+    get@numbers_s(a, one)
+  }>.
+
+  Definition test_subst : action' R Sigma (sig := [("a", struct_t numbers_s)]) := <{
+    subst(a, one, 0b"111")
+  }>.
+
+  Definition test_subst2 : action' R Sigma (sig := [("a", struct_t numbers_s)]) := <{
+    subst@numbers_s(a, one, 0b"111")
+  }>.
+
   Definition struct_test_1 : _action := <{ struct numbers_s::{  } }>.
   Definition struct_test_3 : _action := <{ struct numbers_s::{ one := 0b"010" } }>.
   Definition struct_test_7 : _action := <{ struct numbers_s::{ one := 0b"111"; two := 0b"101"; } }>. (* trailing comma *)
