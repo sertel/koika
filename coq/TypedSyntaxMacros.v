@@ -91,6 +91,8 @@ Section TypedSyntaxMacros.
     field_subst_constr : {idx : struct_index sig & field_type sig idx}.
   Hint Mode FieldSubstConstr + + + + : typeclass_instances.
 
+  Class StructIdx sig (f : string) := struct_idx : struct_index sig.
+
   Section Switch.
     Notation action := (action R Sigma).
 
@@ -274,6 +276,14 @@ Arguments field_subst {pos_t var_t fn_name_t reg_t ext_fn_t} {R Sigma}
   {tau sig} {s_sig} field a {FieldSubst} : assert.
 Arguments field_subst_constr {T} {sig} field val {FieldSubstConstr}.
 Arguments lift_fn_of {A A' B} {fA fA'} lift_fn lift_comm : assert.
+
+
+#[export] Instance struct_idx_hd {f t sig nm}:
+  StructIdx {| struct_name := nm; struct_fields := (f,t) :: sig |} f := thisone.
+#[export] Instance struct_idx_tl {f f' t sig nm}
+  {si : StructIdx {| struct_name := nm; struct_fields := sig |} f}:
+  StructIdx {| struct_name := nm; struct_fields := (f',t) :: sig |} f := anotherone si.
+Arguments struct_idx sig f {StructIdx} : assert.
 
 (* Notation lift_intfun lR lSigma fn :=
   (lift_intfun' (lift lR lSigma) fn). *)

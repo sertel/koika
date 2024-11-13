@@ -30,6 +30,9 @@ Export Koika.Primitives.PrimTyped.
 Export Coq.Strings.String.
 Export Coq.Lists.List.ListNotations.
 
+Export (hints) IdentParsing.TC.
+Local Notation id_to_s a := (TC.ident_to_string a : string).
+
 Definition pos_t := unit.
 Definition var_t := string.
 Definition fn_name_t := string.
@@ -67,7 +70,7 @@ Notation "'<{' e '}>'" := (e) (e custom koika_t).
  * to parse identifiers as strings.
  *)
 Declare Custom Entry koika_t_var.
-Notation "a" := (ident_to_string a) (in custom koika_t_var at level 0, a ident, only parsing).
+Notation "a" := (id_to_s a) (in custom koika_t_var at level 0, a ident, only parsing).
 Notation "a" := (a) (in custom koika_t_var at level 0, a ident, format "'[' a ']'", only printing).
 
 (* Variable references
@@ -198,8 +201,13 @@ Notation "'#' s" := (Const (tau := bits_t _) s) (in custom koika_t at level 0, s
  *   Some of the literal notations also start with an identifier.
  *   Thus, the same restrictions apply.
  *)
-Notation "a" := (Var (k := (ident_to_string a)) _) (in custom koika_t at level 0, a constr at level 0, only parsing).
+Notation "a" := (Var (k := id_to_s a) _) (in custom koika_t at level 0, a constr at level 0, only parsing).
 Notation "a" := (Var a) (in custom koika_t at level 0, a constr at level 0, only printing).
+
+(* Alternative shorter set syntax
+ * Note: expr is level 89 to stay below ';' *)
+Notation "a ':=' b" := (Assign (k := id_to_s a) _ b) (in custom koika_t at level 0, a constr at level 0, b custom koika_t at level 89, only parsing).
+Notation "a ':=' b" := (Assign a                                        b) (in custom koika_t at level 0, a constr at level 0, b custom koika_t at level 89, only printing).
 
 Declare Custom Entry koika_t_args.
 Notation "'(' x ',' .. ',' y ')'" := (CtxCons (_,_) (x) .. (CtxCons (_,_) (y) CtxEmpty) ..) (in custom koika_t_args, x custom koika_t, y custom koika_t).
@@ -327,10 +335,19 @@ Notation "'unpack(' t ',' v ')'"     := (Unop (Conv t Unpack)     v) (in custom 
 
 Notation "'extcall' method '(' arg ')'" := (ExternalCall method arg) (in custom koika_t, method constr at level 0).
 
-Notation "'get' '(' v ',' f ')'"                    := (Unop  (Struct1 GetField _      (PrimTypeInference.find_field _ f))  v  ) (in custom koika_t,           f custom koika_t_var, format "'get' '(' v ','  f ')'").
-Notation "'getbits' '(' t ',' v ',' f ')'"          := (Unop  (Bits1 (GetFieldBits t   (PrimTypeInference.find_field t f))) v  ) (in custom koika_t, t constr, f custom koika_t_var, format "'getbits' '(' t ','  v ','  f ')'").
-Notation "'subst' '(' v ',' f ',' a ')'"            := (Binop (Struct2 SubstField _    (PrimTypeInference.find_field _ f))  v a) (in custom koika_t,           f custom koika_t_var, format "'subst' '(' v ','  f ',' a ')'").
-Notation "'substbits' '(' t ',' v ',' f ',' a ')'"  := (Binop (Bits2 (SubstFieldBits t (PrimTypeInference.find_field t f))) v a) (in custom koika_t, t constr, f custom koika_t_var, format "'substbits' '(' t ','  v ','  f ',' a ')'").
+Notation "'get' '(' v ',' f ')'"                    := (Unop  (Struct1 GetField _      (struct_idx _ f))  v  ) (in custom koika_t,           f custom koika_t_var, format "'get' '(' v ','  f ')'").
+Notation "'getbits' '(' t ',' v ',' f ')'"          := (Unop  (Bits1 (GetFieldBits t   (struct_idx t f))) v  ) (in custom koika_t, t constr, f custom koika_t_var, format "'getbits' '(' t ','  v ','  f ')'").
+Notation "'subst' '(' v ',' f ',' a ')'"            := (Binop (Struct2 SubstField _    (struct_idx _ f))  v a) (in custom koika_t,           f custom koika_t_var, format "'subst' '(' v ','  f ',' a ')'").
+Notation "'substbits' '(' t ',' v ',' f ',' a ')'"  := (Binop (Bits2 (SubstFieldBits t (struct_idx t f))) v a) (in custom koika_t, t constr, f custom koika_t_var, format "'substbits' '(' t ','  v ','  f ',' a ')'").
+
+Notation "'get@' sig '(' v ',' f ')'" := (Unop (Struct1 GetField sig (struct_idx sig f)) v)
+  (in custom koika_t, sig constr at level 0, f custom koika_t_var, format "'get@' sig '(' v ','  f ')'").
+Notation "'getbits@' sig '(' v ',' f ')'" := (Unop (Bits1 (GetFieldBits sig (struct_idx sig f))) v)
+  (in custom koika_t, sig constr at level 0, f custom koika_t_var, format "'getbits@' sig '(' v ','  f ')'").
+Notation "'subst@' sig '(' v ',' f ',' a ')'" := (Binop (Struct2 SubstField sig (struct_idx sig f)) v a)
+  (in custom koika_t, sig constr at level 0, f custom koika_t_var, format "'subst@' sig '(' v ','  f ',' a ')'").
+Notation "'substbits@' sig '(' v ',' f ',' a ')'" := (Binop (Bits2 (SubstFieldBits sig (struct_idx sig f))) v a)
+  (in custom koika_t, sig constr at level 0, f custom koika_t_var, format "'substbits@' sig '(' v ','  f ','  a ')'"). (* FIXME parsing.v spacing *)
 
 Notation "'aref' '(' v ',' f ')'"                   := (Unop  (Array1  (GetElement         f)) v)   (in custom koika_t,           f constr, format "'aref' '(' v ','  f ')'").
 Notation "'arefbits' '(' t ',' v ',' f ')'"         := (Unop  (Array1  (GetElementBits   t f)) v)   (in custom koika_t, t constr, f constr, format "'arefbits' '(' t ','  v ','  f ')'").
@@ -457,6 +474,7 @@ Module Type Tests2.
   Definition test_3' : _action := <{ let yoyo := pass in set yoyo := pass ; pass }>.
   Fail Definition test_3'' : _action := <{ set yoyo := pass ; pass; }>.
   Fail Definition test_5 : _action := <{ let yoyo := set yoyo := pass in pass; }>.
+  Definition test_6 : _action := <{ let yoyo := 0b"101" in yoyo := 0b"111"; pass }>.
   Inductive test := rData (n:nat).
   Definition test_R (r : test) := bits_t 5.
   Definition test_9 : _action := <{ read0(data0) }>.
@@ -603,6 +621,23 @@ Module Type Tests2.
       ("four" , bits_t 3);
       ("five" , enum_t numbers_e) ]
   |}.
+
+  Definition test_get : action' R Sigma (sig := [("a", struct_t numbers_s)]) := <{
+    get(a, one)
+  }>.
+
+  Definition test_get2 : action' R Sigma (sig := [("a", struct_t numbers_s)]) := <{
+    get@numbers_s(a, one)
+  }>.
+
+  Definition test_subst : action' R Sigma (sig := [("a", struct_t numbers_s)]) := <{
+    subst(a, one, 0b"111")
+  }>.
+
+  Definition test_subst2 : action' R Sigma (sig := [("a", struct_t numbers_s)]) := <{
+    subst@numbers_s(a, one, 0b"111")
+  }>.
+
   Definition struct_test_1 : _action := <{ struct numbers_s::{  } }>.
   Definition struct_test_3 : _action := <{ struct numbers_s::{ one := 0b"010" } }>.
   Definition struct_test_7 : _action := <{ struct numbers_s::{ one := 0b"111"; two := 0b"101"; } }>. (* trailing comma *)
