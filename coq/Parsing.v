@@ -17,7 +17,8 @@
 Require Import
         Koika.Common
         Koika.Syntax
-        Koika.IdentParsing.
+        Koika.IdentParsing
+        Koika.TypedSyntaxMacros.
 
 Export Koika.Types.SigNotations.
 Export Koika.Primitives.PrimUntyped.
@@ -153,19 +154,44 @@ Notation "'{' fn '}' args"            := (USugar (UCallModule id       _ fn args
 (*                                Constructors                               *)
 (* ========================================================================= *)
 
-Declare Custom Entry koika_structs_init.
+Declare Custom Entry koika_struct_field.
+Declare Custom Entry koika_struct_init.
 
-(* expr at level at level 89 to stay below koika's sequence (a ; b) *)
-Notation "f ':=' expr" :=  [(f,expr)] (in custom koika_structs_init at level 0, f custom koika_var, expr custom koika at level 89).
-Notation "a ';' b" := (app a b) (in custom koika_structs_init at level 1, a custom koika_structs_init).
-Notation "'struct' structtype '{' fields '}'" :=
-  (USugar (UStructInit structtype fields)) (in custom koika, structtype constr at level 0, fields custom koika_structs_init).
-Notation "'struct' structtype '{' '}'" :=
-  (USugar (UStructInit structtype [])) (in custom koika, structtype constr at level 0).
 
-Notation "'enum' enum_type '{' f '}'" :=
-  (USugar (UConstEnum enum_type f))
-    (in custom koika, enum_type constr at level 0, f custom koika_var at level 1).
+(* expr at level at level 89 to stay below koika's sequence (a ; b), because it
+ * uses the same separation character *)
+Notation "f ':=' expr" := (f, expr) (in custom koika_struct_field at level 0, f custom koika_var, expr custom koika at level 89).
+Notation "a ';' b" := (cons a   b) (in custom koika_struct_init at level 0, a custom koika_struct_field, right associativity).
+Notation "a ';'"   := (cons a nil) (in custom koika_struct_init at level 0, a custom koika_struct_field). (* trailing comma *)
+Notation "a"       := (cons a nil) (in custom koika_struct_init at level 0, a custom koika_struct_field).
+
+(* deprecated *)
+Notation "'struct' sig '{' fields '}'" :=
+  (USugar (UStructInit sig fields)) (in custom koika, sig constr at level 0, fields custom koika_struct_init).
+Notation "'struct' sig '{' '}'" :=
+  (USugar (UStructInit sig [])) (in custom koika, sig constr at level 0).
+
+Notation "'struct' sig '::{' fields '}'" :=
+  (USugar (UStructInit sig fields)) (in custom koika, sig constr at level 0, fields custom koika_struct_init).
+Notation "'struct' sig '::{' '}'" :=
+  (USugar (UStructInit sig [])) (in custom koika, sig constr at level 0).
+
+Notation "sig '::{' fields '}'" :=
+  (USugar (UStructInit sig fields)) (in custom koika at level 0, sig constr at level 0, fields custom koika_struct_init).
+Notation "sig '::{' '}'" :=
+  (USugar (UStructInit sig [])) (in custom koika at level 0, sig constr at level 0).
+
+(* deprecated *)
+Notation "'enum' sig '{' f '}'" :=
+  (USugar (UConstEnum sig f))
+    (in custom koika, sig constr at level 0, f custom koika_var at level 1).
+
+Notation "'enum' sig '::<' f '>'" :=
+  (USugar (UConstEnum sig f))
+    (in custom koika, sig constr at level 0, f custom koika_var at level 1).
+Notation "sig '::<' f '>'" :=
+  (USugar (UConstEnum sig f))
+    (in custom koika at level 0, sig constr at level 0, f custom koika_var at level 1).
 
 
 (* ========================================================================= *)
@@ -182,6 +208,34 @@ Notation "'Ob' '~' number" := (USugar (UConstBits   number))
     (in custom koika at level 0, number custom koika_consts, format "'Ob' '~' number").
 Notation "'Ob'"            := (USugar (UConstBits Bits.nil))
     (in custom koika at level 0).
+
+Local Definition len := String.length.
+
+Notation "num ':b' sz" := (USugar (UConstBits (Bits.of_N (sz <: nat)            (bin_string_to_N num)))) (in custom koika at level 0, num constr at level 0, sz constr at level 0, only parsing).
+Notation "num ':b'"    := (USugar (UConstBits (Bits.of_N ((len num) * 1)        (bin_string_to_N num)))) (in custom koika at level 0, num constr at level 0,                       only parsing).
+Notation "'0b' num sz" := (USugar (UConstBits (Bits.of_N (sz <: nat)            (bin_string_to_N num)))) (in custom koika at level 0, num constr at level 0, sz constr at level 0, format "'0b' num sz").
+Notation "'0b' num"    := (USugar (UConstBits (Bits.of_N ((len num) * 1)        (bin_string_to_N num)))) (in custom koika at level 0, num constr at level 0,                       only parsing).
+Notation "'0b' num"    := (USugar (UConstBits (Bits.of_N _                      (bin_string_to_N num)))) (in custom koika at level 0, num constr at level 0, only printing,        format "'0b' num").
+
+Notation "num ':o' sz" := (USugar (UConstBits (Bits.of_N (sz <: nat)            (oct_string_to_N num)))) (in custom koika at level 0, num constr at level 0, sz constr at level 0, only parsing).
+Notation "num ':o'"    := (USugar (UConstBits (Bits.of_N ((len num) * 3)        (oct_string_to_N num)))) (in custom koika at level 0, num constr at level 0,                       only parsing).
+Notation "'0o' num sz" := (USugar (UConstBits (Bits.of_N (sz <: nat)            (oct_string_to_N num)))) (in custom koika at level 0, num constr at level 0, sz constr at level 0, format "'0o' num sz").
+Notation "'0o' num"    := (USugar (UConstBits (Bits.of_N ((len num) * 3)        (oct_string_to_N num)))) (in custom koika at level 0, num constr at level 0,                       only parsing).
+Notation "'0o' num"    := (USugar (UConstBits (Bits.of_N _                      (oct_string_to_N num)))) (in custom koika at level 0, num constr at level 0, only printing,        format "'0o' num").
+
+Notation "num ':d' sz" := (USugar (UConstBits (Bits.of_N (sz <: nat)            (dec_string_to_N num)))) (in custom koika at level 0, num constr at level 0, sz constr at level 0, only parsing).
+Notation "num ':d'"    := (USugar (UConstBits (Bits.of_N (1 + (N.to_nat (N.log2 (dec_string_to_N num))))
+                                                                                (dec_string_to_N num)))) (in custom koika at level 0, num constr at level 0,                       only parsing).
+Notation "'0d' num sz" := (USugar (UConstBits (Bits.of_N (sz <: nat)            (dec_string_to_N num)))) (in custom koika at level 0, num constr at level 0, sz constr at level 0, format "'0d' num sz").
+Notation "'0d' num"    := (USugar (UConstBits (Bits.of_N (1 + (N.to_nat (N.log2 (dec_string_to_N num))))
+                                                                                (dec_string_to_N num)))) (in custom koika at level 0, num constr at level 0,                       only parsing).
+Notation "'0d' num"    := (USugar (UConstBits (Bits.of_N _                      (dec_string_to_N num)))) (in custom koika at level 0, num constr at level 0, only printing,        format "'0d' num").
+
+Notation "num ':h' sz" := (USugar (UConstBits (Bits.of_N (sz <: nat)            (hex_string_to_N num)))) (in custom koika at level 0, num constr at level 0, sz constr at level 0, only parsing).
+Notation "num ':h'"    := (USugar (UConstBits (Bits.of_N ((len num) * 4)        (hex_string_to_N num)))) (in custom koika at level 0, num constr at level 0,                       only parsing).
+Notation "'0x' num sz" := (USugar (UConstBits (Bits.of_N (sz <: nat)            (hex_string_to_N num)))) (in custom koika at level 0, num constr at level 0, sz constr at level 0, format "'0x' num sz").
+Notation "'0x' num"    := (USugar (UConstBits (Bits.of_N ((len num) * 4)        (hex_string_to_N num)))) (in custom koika at level 0, num constr at level 0,                       only parsing).
+Notation "'0x' num"    := (USugar (UConstBits (Bits.of_N _                      (hex_string_to_N num)))) (in custom koika at level 0, num constr at level 0, only printing,        format "'0x' num").
 
 Notation "'|' a '`d' b '|'" :=
   (USugar (UConstBits (Bits.of_N (a<:nat) b%N)))
@@ -316,7 +370,7 @@ Module Type Tests.
 
   Definition test_30'' : uaction reg_t :=
     {{
-      struct mem_req { foo := upu[#(Bits.of_nat 3 0) :+ 2] ;
+      struct mem_req::{ foo := upu[#(Bits.of_nat 3 0) :+ 2] ;
                        bar := |32`d98| }
     }}.
 
@@ -327,7 +381,7 @@ Module Type Tests.
 
   Definition test_31' : uaction reg_t :=
     {{
-      let a := struct mem_req { foo := upu[#(Bits.of_nat 3 0) :+ 2] ;
+      let a := struct mem_req::{ foo := upu[#(Bits.of_nat 3 0) :+ 2] ;
                                bar := |32`d98| } in
         unpack(struct_t mem_req, pack(a))
     }}.

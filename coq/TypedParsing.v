@@ -225,40 +225,30 @@ Notation "'{' fn '}' args" := (InternalCall fn args)
 Declare Custom Entry koika_t_struct_field.
 Declare Custom Entry koika_t_struct_init.
 (* struct instantiation in koika *)
-(* why only level 88? - probably needs to be below sequence *)
+(* expr at level at level 89 to stay below koika's sequence (a ; b), because it
+ * uses the same separation character *)
 Notation "f ':=' expr" := (field_subst f expr) (in custom koika_t_struct_field at level 0, f custom koika_t_var, expr custom koika_t at level 89).
 Notation "a ';' b" := (cons a   b) (in custom koika_t_struct_init at level 0, a custom koika_t_struct_field, right associativity).
 Notation "a ';'"   := (cons a nil) (in custom koika_t_struct_init at level 0, a custom koika_t_struct_field). (* trailing comma *)
 Notation "a"       := (cons a nil) (in custom koika_t_struct_init at level 0, a custom koika_t_struct_field).
 
-Notation "'struct' sig '{' '}'" :=
+Notation "'struct' sig '::{' '}'" :=
   (struct_init sig []) (in custom koika_t, sig constr at level 0).
-
-Notation "'struct' sig '{' fields '}'" :=
+Notation "'struct' sig '::{' fields '}'" :=
   (struct_init sig fields) (in custom koika_t, sig constr at level 0, fields custom koika_t_struct_init).
 
-Declare Custom Entry koika_t_struct_init_constr.
-Declare Custom Entry koika_t_struct_field_constr.
+Notation "sig '::{' '}'" :=
+  (struct_init sig []) (in custom koika_t at level 0, sig constr at level 0).
+Notation "sig '::{' fields '}'" :=
+  (struct_init sig fields) (in custom koika_t at level 0, sig constr at level 0, fields custom koika_t_struct_init).
 
-Notation "f ':=' expr" := (field_subst_constr f expr) (in custom koika_t_struct_field_constr at level 0, f custom koika_t_var, expr constr at level 10).
-Notation "a ';' b" := (cons a    b) (in custom koika_t_struct_init_constr at level 0, a custom koika_t_struct_field_constr, right associativity).
-Notation "a ';'"   := (cons a  nil) (in custom koika_t_struct_init_constr at level 0, a custom koika_t_struct_field_constr). (* trailing comma *)
-Notation "a"       := (cons a  nil) (in custom koika_t_struct_init_constr at level 0, a custom koika_t_struct_field_constr).
-
-Notation "'struct' sig '<' '>'" :=
-  (struct_init_constr sig []) (sig constr at level 0).
-Notation "'struct' sig '<' fields '>'" :=
-  (struct_init_constr sig fields) (sig constr at level 0, fields custom koika_t_struct_init_constr).
-
-(* TODO i would like to use different paratesis here *)
-Notation "'enum' sig '{' f '}'" :=
+Notation "'enum' sig '::<' f '>'" :=
   (Const (tau := enum_t sig) (vect_nth sig.(enum_bitpatterns) (must (vect_index f sig.(enum_members)))))
     (in custom koika_t, sig constr at level 0, f custom koika_t_var).
+Notation "sig '::<' f '>'" :=
+  (Const (tau := enum_t sig) (vect_nth sig.(enum_bitpatterns) (must (vect_index f sig.(enum_members)))))
+    (in custom koika_t at level 0, sig constr at level 0, f custom koika_t_var).
 
-(* creating enums literal in constr (normal Coq) *)
-Notation "'enum' sig '<' f '>'" :=
-  (vect_nth sig.(enum_bitpatterns) (must (vect_index f sig.(enum_members))))
-    (sig constr at level 0, f custom koika_t_var).
 
 (* ========================================================================= *)
 (*                                  Literals                                 *)
@@ -275,43 +265,36 @@ Notation "'Ob' '~' number" := (Const (tau := bits_t _)   number)
 Notation "'Ob'"            := (Const (tau := bits_t 0) Bits.nil)
     (in custom koika_t at level 0).
 
-Declare Custom Entry koika_t_literal.
-
 Local Definition len := String.length.
 
-Notation "num ':b' sz" := (Bits.of_N (sz <: nat)            (bin_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0, sz constr at level 0, only parsing).
-Notation "num ':b'"    := (Bits.of_N ((len num) * 1)        (bin_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0,                       only parsing).
-Notation "'0b' num sz" := (Bits.of_N (sz <: nat)            (bin_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0, sz constr at level 0, format "'0b' num sz").
-Notation "'0b' num"    := (Bits.of_N ((len num) * 1)        (bin_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0,                       only parsing).
-Notation "'0b' num"    := (Bits.of_N _                      (bin_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0, only printing,        format "'0b' num").
+Notation "num ':b' sz" := (Const (tau := bits_t _) (Bits.of_N (sz <: nat)            (bin_string_to_N num))) (in custom koika_t at level 0, num constr at level 0, sz constr at level 0, only parsing).
+Notation "num ':b'"    := (Const (tau := bits_t _) (Bits.of_N ((len num) * 1)        (bin_string_to_N num))) (in custom koika_t at level 0, num constr at level 0,                       only parsing).
+Notation "'0b' num sz" := (Const (tau := bits_t _) (Bits.of_N (sz <: nat)            (bin_string_to_N num))) (in custom koika_t at level 0, num constr at level 0, sz constr at level 0, format "'0b' num sz").
+Notation "'0b' num"    := (Const (tau := bits_t _) (Bits.of_N ((len num) * 1)        (bin_string_to_N num))) (in custom koika_t at level 0, num constr at level 0,                       only parsing).
+Notation "'0b' num"    := (Const (tau := bits_t _) (Bits.of_N _                      (bin_string_to_N num))) (in custom koika_t at level 0, num constr at level 0, only printing,        format "'0b' num").
 
-Notation "num ':o' sz" := (Bits.of_N (sz <: nat)            (oct_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0, sz constr at level 0, only parsing).
-Notation "num ':o'"    := (Bits.of_N ((len num) * 3)        (oct_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0,                       only parsing).
-Notation "'0o' num sz" := (Bits.of_N (sz <: nat)            (oct_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0, sz constr at level 0, format "'0o' num sz").
-Notation "'0o' num"    := (Bits.of_N ((len num) * 3)        (oct_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0,                       only parsing).
-Notation "'0o' num"    := (Bits.of_N _                      (oct_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0, only printing,        format "'0o' num").
+Notation "num ':o' sz" := (Const (tau := bits_t _) (Bits.of_N (sz <: nat)            (oct_string_to_N num))) (in custom koika_t at level 0, num constr at level 0, sz constr at level 0, only parsing).
+Notation "num ':o'"    := (Const (tau := bits_t _) (Bits.of_N ((len num) * 3)        (oct_string_to_N num))) (in custom koika_t at level 0, num constr at level 0,                       only parsing).
+Notation "'0o' num sz" := (Const (tau := bits_t _) (Bits.of_N (sz <: nat)            (oct_string_to_N num))) (in custom koika_t at level 0, num constr at level 0, sz constr at level 0, format "'0o' num sz").
+Notation "'0o' num"    := (Const (tau := bits_t _) (Bits.of_N ((len num) * 3)        (oct_string_to_N num))) (in custom koika_t at level 0, num constr at level 0,                       only parsing).
+Notation "'0o' num"    := (Const (tau := bits_t _) (Bits.of_N _                      (oct_string_to_N num))) (in custom koika_t at level 0, num constr at level 0, only printing,        format "'0o' num").
 
-Notation "num ':d' sz" := (Bits.of_N (sz <: nat)            (dec_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0, sz constr at level 0, only parsing).
-Notation "num ':d'"    := (Bits.of_N (1 + (N.to_nat (N.log2 (dec_string_to_N num))))
-                                                            (dec_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0,                       only parsing).
-Notation "'0d' num sz" := (Bits.of_N (sz <: nat)            (dec_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0, sz constr at level 0, format "'0d' num sz").
-Notation "'0d' num"    := (Bits.of_N (1 + (N.to_nat (N.log2 (dec_string_to_N num))))
-                                                            (dec_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0,                       only parsing).
-Notation "'0d' num"    := (Bits.of_N _                      (dec_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0, only printing,        format "'0d' num").
+Notation "num ':d' sz" := (Const (tau := bits_t _) (Bits.of_N (sz <: nat)            (dec_string_to_N num))) (in custom koika_t at level 0, num constr at level 0, sz constr at level 0, only parsing).
+Notation "num ':d'"    := (Const (tau := bits_t _) (Bits.of_N (1 + (N.to_nat (N.log2 (dec_string_to_N num))))
+                                                                                     (dec_string_to_N num))) (in custom koika_t at level 0, num constr at level 0,                       only parsing).
+Notation "'0d' num sz" := (Const (tau := bits_t _) (Bits.of_N (sz <: nat)            (dec_string_to_N num))) (in custom koika_t at level 0, num constr at level 0, sz constr at level 0, format "'0d' num sz").
+Notation "'0d' num"    := (Const (tau := bits_t _) (Bits.of_N (1 + (N.to_nat (N.log2 (dec_string_to_N num))))
+                                                                                     (dec_string_to_N num))) (in custom koika_t at level 0, num constr at level 0,                       only parsing).
+Notation "'0d' num"    := (Const (tau := bits_t _) (Bits.of_N _                      (dec_string_to_N num))) (in custom koika_t at level 0, num constr at level 0, only printing,        format "'0d' num").
 
-Notation "num ':h' sz" := (Bits.of_N (sz <: nat)            (hex_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0, sz constr at level 0, only parsing).
-Notation "num ':h'"    := (Bits.of_N ((len num) * 4)        (hex_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0,                       only parsing).
-Notation "'0x' num sz" := (Bits.of_N (sz <: nat)            (hex_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0, sz constr at level 0, format "'0x' num sz").
-Notation "'0x' num"    := (Bits.of_N ((len num) * 4)        (hex_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0,                       only parsing).
-Notation "'0x' num"    := (Bits.of_N _                      (hex_string_to_N num)) (in custom koika_t_literal at level 1, num constr at level 0, only printing,        format "'0x' num").
+Notation "num ':h' sz" := (Const (tau := bits_t _) (Bits.of_N (sz <: nat)            (hex_string_to_N num))) (in custom koika_t at level 0, num constr at level 0, sz constr at level 0, only parsing).
+Notation "num ':h'"    := (Const (tau := bits_t _) (Bits.of_N ((len num) * 4)        (hex_string_to_N num))) (in custom koika_t at level 0, num constr at level 0,                       only parsing).
+Notation "'0x' num sz" := (Const (tau := bits_t _) (Bits.of_N (sz <: nat)            (hex_string_to_N num))) (in custom koika_t at level 0, num constr at level 0, sz constr at level 0, format "'0x' num sz").
+Notation "'0x' num"    := (Const (tau := bits_t _) (Bits.of_N ((len num) * 4)        (hex_string_to_N num))) (in custom koika_t at level 0, num constr at level 0,                       only parsing).
+Notation "'0x' num"    := (Const (tau := bits_t _) (Bits.of_N _                      (hex_string_to_N num))) (in custom koika_t at level 0, num constr at level 0, only printing,        format "'0x' num").
 
 (* legacy number format *)
-Notation "a '`d' b" := (Bits.of_N (a<:nat) b%N) (in custom koika_t_literal at level 1, a constr at level 0 , b constr at level 0).
-
-(* literal inside koika - wrapped inside Const to function as a uaction *)
-Notation "'|' literal '|'" := (Const (tau := bits_t _) literal) (in custom koika_t at level 1, literal custom koika_t_literal).
-(* literal inside constr (normal Coq) - directly usable as [bits n] *)
-Notation "'|' literal '|'" := (literal) (at level 10, literal custom koika_t_literal).
+Notation "'|' a '`d' b '|'" := (Const (tau := bits_t _) (Bits.of_N (a<:nat) b%N)) (in custom koika_t at level 0, a constr at level 0 , b constr at level 0).
 
 
 (* ========================================================================= *)
@@ -404,7 +387,7 @@ Module Type Tests.
   |}%vect.
 
   Definition test_enum : _action := <{
-    enum numbers_e { ONE }
+    enum numbers_e::<ONE>
   }>.
 
   Definition func : function R Sigma := <{
@@ -429,7 +412,7 @@ Module Type Tests.
 
   Definition test_funcall : function R Sigma := <{
     fun f () : bits_t 2 =>
-      test_func2(|0b"1"|, |0b"011"|)
+      test_func2(0b"1", 0b"011")
   }>.
 
   Definition numbers_s := {|
@@ -442,19 +425,19 @@ Module Type Tests.
   |}.
 
   Definition test_struct_init : _action := <{
-    struct numbers_s {
+    struct numbers_s::{
       one := Ob~1~1~1;
       two := Ob~1~1~1
     }
   }>.
   Definition test_struct_init_trailing_comma : _action := <{
-    struct numbers_s {
-      two   := |"100":b| ;
-      three := |"101":b| ;
+    struct numbers_s::{
+      two   := "100":b ;
+      three := "101":b ;
     }
   }>.
   Definition test_struct_init_empty : _action := <{
-    struct numbers_s {}
+    struct numbers_s::{}
   }>.
 End Tests.
 Module Type Tests2.
@@ -465,7 +448,7 @@ Module Type Tests2.
   Parameter Sigma: ext_fn_t -> ExternalSignature.
   Definition _action {tau} := action (tau := tau) R Sigma.
   Definition test_2 : _action := <{ Ob~1~1 }>.
-  Definition test_bits : _action := <{ |0b"010"| }>.
+  Definition test_bits : _action := <{ 0b"010" }>.
   Definition test_1 : _action := <{ let yoyo := fail(2) in pass }>.
   Definition test_1' : _action := <{ let yoyo := fail(2) in yoyo }>.
   Definition test_2' : _action := <{ pass; pass }>.
@@ -478,23 +461,23 @@ Module Type Tests2.
   Definition test_10 : nat -> action test_R Sigma := (fun idx => <{ read0(rData idx) }>).
   Definition test_11 : _action := <{ (let yoyo := read0(data0) in write0(data0, Ob~1~1~1~1~1)); fail }>.
   Fail Definition test_11' : _action := <{ (let yoyo := read0(data0) in write0(data0, Ob~1~1~1~1)); fail }>.
-  Definition test_12 : _action := <{ (let yoyo := if fail (1) then read0(data0) else fail (5) in write0(data0, |0b"01100"|));fail }>.
+  Definition test_12 : _action := <{ (let yoyo := if fail (1) then read0(data0) else fail (5) in write0(data0, 0b"01100"));fail }>.
   Fail Definition test_13 : _action := <{ yoyo }>.
   Set Printing Implicit.
 
   Definition test_14 : _action := <{ !Ob~1 && Ob~1 }>.
   Definition test_14' : _action := <{ !(Ob~1 && Ob~1) }>.
   Goal test_14 <> test_14'. compute; congruence. Qed.
-  Definition test_15 : _action := <{ |0b"10011"| && read0(data0) }>.
+  Definition test_15 : _action := <{ 0b"10011" && read0(data0) }>.
   Definition test_16 : _action := <{ !read0(data1) && !read0(data1) }>.
   Program Definition test_lit : _action (tau := bits_t 5) := (Seq (Write P0 data0 <{ Ob~1~1~0~0~1 }>) (Const (tau := bits_t _) (Bits.of_N ltac:(let x := eval cbv in ((len "01100") * 1) in exact x) (bin_string_to_N "01100")))).
   Fail Next Obligation.
-  Definition test_20 : _action := <{ |0b"11001100"| [ Ob~0~0~0 :+ 3 ] }>.
+  Definition test_20 : _action := <{ (0b"11001100")[ Ob~0~0~0 :+ 3 ] }>.
   Definition test_23 : function R Sigma := <{ fun test (arg1 : (bits_t 3)) (arg2 : bits_t 2) : unit_t => pass }>.
   Definition test_24 (sz : nat) : function R Sigma := <{ fun test (arg1 : bits_t sz) (arg1 : bits_t sz) : bits_t sz  => fail(sz)}>.
   Definition test_25 (sz : nat) : function R Sigma := <{fun test (arg1 : bits_t sz ) : bits_t sz => let oo := fail(sz) >> fail(sz) in oo}>.
   Definition test_26 (sz : nat) : function R Sigma := <{ fun test () : bits_t sz  => fail(sz) }>.
-  Definition test_write : _action := <{ write0(data0, |0b"01101"|) }>.
+  Definition test_write : _action := <{ write0(data0, 0b"01101") }>.
 
   #[program ]Definition idk : _action (tau := bits_t 3) := <{
     (!read0(data0))[Ob~1~1~1 :+ 3]
@@ -503,7 +486,7 @@ Module Type Tests2.
   #[program] Definition idk2 : _action := <{
     let idk := Ob~1~1~1~0~0 in
     ignore(if (!idk)[#(Bits.of_nat 3 0) :+ 1] then (
-        write0(data0, |0b"01101"|);
+        write0(data0, 0b"01101");
         pass
       ) else pass);
     fail
@@ -511,16 +494,16 @@ Module Type Tests2.
   Fail Next Obligation.
   #[program] Definition test_27 : _action := <{
     ignore(if (!read0(data0))[#(Bits.of_nat _ 0) :+ 1] then (
-      write0(data0, |0b"01101"|);
-      let yo := if (Ob~1) then |0b"1001"| else |0x"F"| in
+      write0(data0, 0b"01101");
+      let yo := if (Ob~1) then 0b"1001" else 0x"F" in
       write0(data0, yo ++ Ob~1);
-      |0b"00011"5|
+      0b"00011"5
       ) else read0(data0));
     fail
   }>.
   Fail Next Obligation.
   Definition test_28 : _action :=  <{
-    let var := |0b"101"| in
+    let var := 0b"101" in
     match var with
     | Ob~1~1~1 => pass
     | Ob~0~1~1 => pass
@@ -533,14 +516,14 @@ Module Type Tests2.
        struct_fields := [("foo", bits_t 2); ("bar", bits_t 32)] |}.
 
   Definition test_30'' : _action := <{
-    let upu := |0x"C0"| in
-    struct mem_req { foo := upu[#(Bits.of_nat _ 0) :+ 2] ;
+    let upu := 0x"C0" in
+    struct mem_req::{ foo := upu[#(Bits.of_nat _ 0) :+ 2] ;
                       bar := |32`d98| }
   }>.
 
   Program Definition test_31' : _action := <{
-    let upu := |0x"C0"| in
-    let a := struct mem_req { foo := upu[#(Bits.of_nat 3 0) :+ 2] ;
+    let upu := 0x"C0" in
+    let a := struct mem_req::{ foo := upu[#(Bits.of_nat 3 0) :+ 2] ;
                               bar := |32`d98| } in
       unpack(struct_t mem_req, pack(a))
   }>.
@@ -550,7 +533,7 @@ Module Type Tests2.
 
   (* sequences in match statements without paranthesis *)
   Program Definition test_32 : [|
-    let x := |0x"C0"5| in
+    let x := 0x"C0"5 in
     match |5`d10| with
     | |5`d10| => (
       write0(data0, x);
@@ -562,7 +545,7 @@ Module Type Tests2.
     return default: fail (5)
     end
   =koika=
-    let x := |0x"C0"5| in
+    let x := 0x"C0"5 in
     match |5`d10| with
     | |5`d10| =>
       write0(data0, x);
@@ -605,12 +588,9 @@ Module Type Tests2.
   |}%vect.
 
   (* Accessing enum constants *)
-  Definition enum_test_1 := enum numbers_e < ONE >.
-  Definition enum_test_2 := enum numbers_e < TWO >.
-  Definition enum_test_3 :  enum numbers_e < ONE >   = |"001":b| := eq_refl.
-  Definition enum_test_4 :  enum numbers_e < TWO >   = |"010":b| := eq_refl.
-  Definition enum_test_5 :  enum numbers_e < THREE > = |"011":b| := eq_refl.
-  Definition enum_test_6 :  enum numbers_e < IDK >   = |"111":b| := eq_refl.
+  Definition enum_test_1 := <{ enum numbers_e::< ONE > }> : _action.
+  Definition enum_test_2 := <{ enum numbers_e::< TWO > }> : _action.
+  Definition enum_test_3 := <{ numbers_e::< THREE > }> : _action.
 
   Definition numbers_s := {|
     struct_name:= "some_s";
@@ -621,63 +601,54 @@ Module Type Tests2.
       ("four" , bits_t 3);
       ("five" , enum_t numbers_e) ]
   |}.
-  Definition struct_test_1 := struct numbers_s < >.
-  Definition struct_test_2 :  struct numbers_s < > = value_of_bits Bits.zero := eq_refl.
-  Definition struct_test_3 := struct numbers_s < one := |"010":b| >.
-  Definition struct_test_7 := struct numbers_s < one := Bits.of_N 3 3; two := Bits.of_N 3 2; >. (* trailing comma *)
-  Definition struct_test_4 :  struct numbers_s < one := |"010":b| ; two := |"111":b| > = (Ob~0~1~0, (Ob~1~1~1, (Ob~0~0~0, (Ob~0~0~0, (Ob~0~0~0, tt))))) := eq_refl.
-  Definition struct_test_5 :  struct numbers_s < five := enum numbers_e < IDK > >      = (Ob~0~0~0, (Ob~0~0~0, (Ob~0~0~0, (Ob~0~0~0, (Ob~1~1~1, tt))))) := eq_refl.
-  Fail Definition struct_test_6 := struct numbers_s < five := enum numbers_e < WRONG > >.
-  Fail Definition struct_test_8 := struct numbers_s < wrong := Bits.of_N 3 3 >.
+  Definition struct_test_1 : _action := <{ struct numbers_s::{  } }>.
+  Definition struct_test_3 : _action := <{ struct numbers_s::{ one := 0b"010" } }>.
+  Definition struct_test_7 : _action := <{ struct numbers_s::{ one := 0b"111"; two := 0b"101"; } }>. (* trailing comma *)
+  Definition struct_test_5 : _action := <{ struct numbers_s::{ five := enum numbers_e::< IDK > } }>.
 
-  Definition num_test_b_1 : [| |"01101":b|       =koika= Ob~0~1~1~0~1 |] := eq_refl.
-  Definition num_test_b_2 : [| |0b"00011"|       =koika= Ob~0~0~0~1~1 |] := eq_refl.
-  Definition num_test_b_3 : [| |"11":b5|         =koika= Ob~0~0~0~1~1 |] := eq_refl.
-  Definition num_test_b_4 : [| |0b"10"5|         =koika= Ob~0~0~0~1~0 |] := eq_refl.
-  Definition num_test_b_5 : [| |0b"10010110"3|   =koika= Ob~1~1~0     |] := eq_refl.
-  Fail Definition num_test_b_6  := <{ |0b"102"|  }> : _action.
-  Fail Definition num_test_b_7  := <{ |0b"10f"6| }> : _action.
-  Fail Definition num_test_b_8  := <{ |"f0":b5|  }> : _action.
-  Fail Definition num_test_b_9  := <{ |"f0":b|   }> : _action.
-  Fail Definition num_test_b_10 := <{ |"":b|     }> : _action.
+  Definition num_test_b_1 : [| "01101":b     =koika= Ob~0~1~1~0~1 |] := eq_refl.
+  Definition num_test_b_2 : [| 0b"00011"     =koika= Ob~0~0~0~1~1 |] := eq_refl.
+  Definition num_test_b_3 : [| "11":b5       =koika= Ob~0~0~0~1~1 |] := eq_refl.
+  Definition num_test_b_4 : [| 0b"10"5       =koika= Ob~0~0~0~1~0 |] := eq_refl.
+  Definition num_test_b_5 : [| 0b"10010110"3 =koika= Ob~1~1~0     |] := eq_refl.
+  Fail Definition num_test_b_6  := <{ 0b"102"  }> : _action.
+  Fail Definition num_test_b_7  := <{ 0b"10f"6 }> : _action.
+  Fail Definition num_test_b_8  := <{ "f0":b5  }> : _action.
+  Fail Definition num_test_b_9  := <{ "f0":b   }> : _action.
+  Fail Definition num_test_b_10 := <{ "":b     }> : _action.
 
-  Definition num_test_o_1 : [| |"330":o|   =koika= Ob~0~1~1~0~1~1~0~0~0     |] := eq_refl.
-  Definition num_test_o_2 : [| |"070":o9|  =koika= Ob~0~0~0~1~1~1~0~0~0     |] := eq_refl.
-  Definition num_test_o_3 : [| |0o"000"|   =koika= Ob~0~0~0~0~0~0~0~0~0     |] := eq_refl.
-  Definition num_test_o_4 : [| |0o"750"11| =koika= Ob~0~0~1~1~1~1~0~1~0~0~0 |] := eq_refl.
-  Definition num_test_o_5 : [| |0o"751"3|  =koika= Ob~0~0~1                 |] := eq_refl.
-  Fail Definition num_test_o_6  := <{ |0o"108"|   }> : _action.
-  Fail Definition num_test_o_7  := <{ |0o"080"10| }> : _action.
-  Fail Definition num_test_o_8  := <{ |"f00":o10| }> : _action.
-  Fail Definition num_test_o_9  := <{ |"00f":o5|  }> : _action.
-  Fail Definition num_test_o_10 := <{ |"":o|      }> : _action.
+  Definition num_test_o_1 : [| "330":o   =koika= Ob~0~1~1~0~1~1~0~0~0     |] := eq_refl.
+  Definition num_test_o_2 : [| "070":o9  =koika= Ob~0~0~0~1~1~1~0~0~0     |] := eq_refl.
+  Definition num_test_o_3 : [| 0o"000"   =koika= Ob~0~0~0~0~0~0~0~0~0     |] := eq_refl.
+  Definition num_test_o_4 : [| 0o"750"11 =koika= Ob~0~0~1~1~1~1~0~1~0~0~0 |] := eq_refl.
+  Definition num_test_o_5 : [| 0o"751"3  =koika= Ob~0~0~1                 |] := eq_refl.
+  Fail Definition num_test_o_6  := <{ 0o"108"   }> : _action.
+  Fail Definition num_test_o_7  := <{ 0o"080"10 }> : _action.
+  Fail Definition num_test_o_8  := <{ "f00":o10 }> : _action.
+  Fail Definition num_test_o_9  := <{ "00f":o5  }> : _action.
+  Fail Definition num_test_o_10 := <{ "":o      }> : _action.
 
-  Definition num_test_d_1 : [| |"33":d|    =koika= Ob~1~0~0~0~0~1           |] := eq_refl.
-  Definition num_test_d_2 : [| |"33":d9|   =koika= Ob~0~0~0~1~0~0~0~0~1     |] := eq_refl.
-  Definition num_test_d_3 : [| |"070":d9|  =koika= Ob~0~0~1~0~0~0~1~1~0     |] := eq_refl.
-  Definition num_test_d_4 : [| |0d"070"|   =koika= Ob~1~0~0~0~1~1~0         |] := eq_refl.
-  Definition num_test_d_5 : [| |0d"198"11| =koika= Ob~0~0~0~1~1~0~0~0~1~1~0 |] := eq_refl.
-  Definition num_test_d_6 : [| |0d"15"3|   =koika= Ob~1~1~1                 |] := eq_refl.
-  Fail Definition num_test_d_7  := <{ |0d"1a0"|   }> : _action.
-  Fail Definition num_test_d_8  := <{ |0d"0z0"10| }> : _action.
-  Fail Definition num_test_d_9  := <{ |"f00":d10| }> : _action.
-  Fail Definition num_test_d_10 := <{ |"00f":d5|  }> : _action.
-  Fail Definition num_test_d_11 := <{ |"":d|      }> : _action.
+  Definition num_test_d_1 : [| "33":d    =koika= Ob~1~0~0~0~0~1           |] := eq_refl.
+  Definition num_test_d_2 : [| "33":d9   =koika= Ob~0~0~0~1~0~0~0~0~1     |] := eq_refl.
+  Definition num_test_d_3 : [| "070":d9  =koika= Ob~0~0~1~0~0~0~1~1~0     |] := eq_refl.
+  Definition num_test_d_4 : [| 0d"070"   =koika= Ob~1~0~0~0~1~1~0         |] := eq_refl.
+  Definition num_test_d_5 : [| 0d"198"11 =koika= Ob~0~0~0~1~1~0~0~0~1~1~0 |] := eq_refl.
+  Definition num_test_d_6 : [| 0d"15"3   =koika= Ob~1~1~1                 |] := eq_refl.
+  Fail Definition num_test_d_7  := <{ 0d"1a0"   }> : _action.
+  Fail Definition num_test_d_8  := <{ 0d"0z0"10 }> : _action.
+  Fail Definition num_test_d_9  := <{ "f00":d10 }> : _action.
+  Fail Definition num_test_d_10 := <{ "00f":d5  }> : _action.
+  Fail Definition num_test_d_11 := <{ "":d      }> : _action.
 
-  Definition num_test_h_1 : [| |"fa":h|    =koika= Ob~1~1~1~1~1~0~1~0         |] := eq_refl.
-  Definition num_test_h_2 : [| |"bb":h9|   =koika= Ob~0~1~0~1~1~1~0~1~1       |] := eq_refl.
-  Definition num_test_h_3 : [| |"014":h|   =koika= Ob~0~0~0~0~0~0~0~1~0~1~0~0 |] := eq_refl.
-  Definition num_test_h_4 : [| |0x"070"|   =koika= Ob~0~0~0~0~0~1~1~1~0~0~0~0 |] := eq_refl.
-  Definition num_test_h_5 : [| |0x"198"11| =koika= Ob~0~0~1~1~0~0~1~1~0~0~0   |] := eq_refl.
-  Definition num_test_h_6 : [| |0x"1d"3|   =koika= Ob~1~0~1                   |] := eq_refl.
-  Fail Definition num_test_h_7  := <{ |0x"1h0"|   }> : _action.
-  Fail Definition num_test_h_8  := <{ |0x"0z0"10| }> : _action.
-  Fail Definition num_test_h_9  := <{ |"g00":h10| }> : _action.
-  Fail Definition num_test_h_10 := <{ |"00k":h5|  }> : _action.
-  Fail Definition num_test_h_11 := <{ |"":h|      }> : _action.
-
-  Definition num_test_constr_1 := |"0110":b|     : bits _.
-  Definition num_test_constr_2 := |0b"0110"|     : bits _.
-  Definition num_test_constr_3 := |"c0ffee":h|   : bits _.
-  Definition num_test_constr_4 := |0x"deadbeef"| : bits _.
+  Definition num_test_h_1 : [| "fa":h    =koika= Ob~1~1~1~1~1~0~1~0         |] := eq_refl.
+  Definition num_test_h_2 : [| "bb":h9   =koika= Ob~0~1~0~1~1~1~0~1~1       |] := eq_refl.
+  Definition num_test_h_3 : [| "014":h   =koika= Ob~0~0~0~0~0~0~0~1~0~1~0~0 |] := eq_refl.
+  Definition num_test_h_4 : [| 0x"070"   =koika= Ob~0~0~0~0~0~1~1~1~0~0~0~0 |] := eq_refl.
+  Definition num_test_h_5 : [| 0x"198"11 =koika= Ob~0~0~1~1~0~0~1~1~0~0~0   |] := eq_refl.
+  Definition num_test_h_6 : [| 0x"1d"3   =koika= Ob~1~0~1                   |] := eq_refl.
+  Fail Definition num_test_h_7  := <{ 0x"1h0"   }> : _action.
+  Fail Definition num_test_h_8  := <{ 0x"0z0"10 }> : _action.
+  Fail Definition num_test_h_9  := <{ "g00":h10 }> : _action.
+  Fail Definition num_test_h_10 := <{ "00k":h5  }> : _action.
+  Fail Definition num_test_h_11 := <{ "":h      }> : _action.
 End Tests2.
