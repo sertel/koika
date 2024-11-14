@@ -1525,7 +1525,7 @@ End Bits.
 
 Declare Scope bits.
 
-Notation bits n := (Bits.bits n).
+Definition bits n := (Bits.bits n).
 Notation "bs '~' b" := (Bits.cons b bs) (at level 7, left associativity, format "bs '~' b") : bits.
 Notation "bs '~' 0" := (Bits.cons false bs) (at level 7, left associativity, format "bs '~' 0") : bits.
 Notation "bs '~' 1" := (Bits.cons true bs) (at level 7, left associativity, format "bs '~' 1") : bits.

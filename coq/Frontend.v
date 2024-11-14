@@ -248,3 +248,6 @@ Tactic Notation "abstract_simpl" constr(r) :=
 
 Tactic Notation "abstract_simpl" :=
   rewrite (interp_cycle_cps_correct_rev); simpl.
+
+Notation "'assert' a ':=' b 'in' body" :=
+  (match b with | a => body | _ => False end) (at level 200, a pattern).
