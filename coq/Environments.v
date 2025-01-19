@@ -500,7 +500,7 @@ Definition to_alist {K} (E: Env K) {V} (ev: E.(env_t) (fun _ => V)) :=
   fold_right E (fun (k: K) (v: V) (t: list (K * V)) => (k, v) :: t) ev List.nil.
 
 (* Caution: used for computations *)
-Definition finite_member {T} {FT: FiniteType T} (t: T) :
+Definition finite_member {T} `{FiniteType T} (t: T) :
   member t finite_elements.
 Proof.
   eapply nth_member.
