@@ -5,6 +5,7 @@
   boost,
   python3,
   sphinx,
+  equations,
   doCheck ? false,
 }:
 mkCoqDerivation rec {
@@ -45,6 +46,7 @@ mkCoqDerivation rec {
     parsexp
     hashcons
     zarith
+    equations
   ];
 
   preInstall = ''
